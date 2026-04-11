@@ -196,7 +196,7 @@ Ship a **help chat** in the secretariat UI. Answers are generated with **RAG** o
 
 ### Related
 
-- `docs/specs/ai/help-chat-rag.spec.md`
+- `docs/specs/ai/chat-ajuda-rag.spec.md`
 - `docs/job-target-sk-aprendizagem.md`
 
 ---
@@ -221,7 +221,7 @@ Matches real secretariat corrections (wrong class vs wrong grade) and keeps fina
 
 ### Related
 
-- `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` (Portuguese — detailed rules)
+- `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` (Portuguese — detailed rules)
 - `docs/student-flow.spec.md` §8, §19
 
 ---
@@ -244,7 +244,7 @@ Requires explicit **which** guardian supplies the address, avoiding ambiguity wh
 
 ### Related
 
-- `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` §4
+- `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` §4
 - `docs/student-flow.spec.md` §6 Step 3
 
 ---
@@ -280,4 +280,22 @@ Expose **institution-configurable** integers (env or settings table in a later p
 
 ### Related
 
-- `docs/specs/students-and-guardians/person-and-guardian-fields.spec.md` §1
+- `docs/specs/students-and-guardians/campos-aluno-e-responsavel.spec.md` §1
+
+---
+
+## Spec filenames vs document language
+
+### Decision
+
+- Spec body **in Portuguese** → filename **in Portuguese** (ASCII kebab-case, no accents in the filename).
+- Spec body **in English** → filename **in English**.
+
+### Rationale
+
+Easier navigation and consistent expectations for contributors and reviewers.
+
+### Related
+
+- `docs/specs/README.md`
+- `docs/language-policy.md`

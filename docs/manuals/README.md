@@ -11,4 +11,4 @@ Um arquivo por tema em cada pasta (ex.: `pt/matricula.md` e `en/enrollment.md`) 
 
 O conteúdo deve refletir os **specs**; se divergir, corrige o manual **ou** o spec.
 
-Ver `docs/specs/ai/help-chat-rag.spec.md` e `docs/language-policy.md`.
+Ver `docs/specs/ai/chat-ajuda-rag.spec.md` e `docs/language-policy.md`.

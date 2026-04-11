@@ -14,6 +14,8 @@ This folder is the **working home** for area specs. Today, most **behavioral** r
 
 **Rule of thumb:** one **decision** that changes product behavior → `docs/decisions.md` (ADR). One **behavior users/API must follow** → spec (`student-flow` or `docs/specs/...`).
 
+**Nome do arquivo vs idioma do texto:** se o conteúdo do spec estiver **em português**, o **nome do arquivo** também deve estar **em português** (ex.: `campos-aluno-e-responsavel.spec.md`). Se o spec estiver **em inglês**, use nome **em inglês** (ex.: `catalog.spec.md`).
+
 ---
 
 ## Canonical map (where truth lives today)
@@ -22,15 +24,15 @@ This folder is the **working home** for area specs. Today, most **behavioral** r
 |--------|---------------------|------------------|
 | Entities & names | `docs/domain.md` | Full domain overview |
 | Stack | `docs/stack.spec.md` | Nest, Prisma, Postgres, Next, Docker |
-| Student search, draft, identity, form, guardians | `docs/student-flow.spec.md` | §1–§6; field catalog `students-and-guardians/person-and-guardian-fields.spec.md` |
+| Student search, draft, identity, form, guardians | `docs/student-flow.spec.md` | §1–§6; field catalog `students-and-guardians/campos-aluno-e-responsavel.spec.md` |
 | Enrollment structure, status, class, cancellation | | §7–§8, §12–§15 |
-| Enrollment fields, post-Active edits, address “mora com” | `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` | PT-BR; links from §6–§8, §19 |
+| Enrollment fields, post-Active edits, address “mora com” | `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` | PT-BR; links from §6–§8, §19 |
 | Academic results / progression | | §9–§11 (deferred where marked) |
 | System-wide UX (auto-save, destructive confirm) | | §16 |
 | Catalog (year, grade, curriculum, turma) | | §17 |
 | Access (MVP secretariat only) | | §18 |
 | Payment plans & installments | | §19 |
-| Help chat (RAG on secretariat manuals) | `docs/specs/ai/help-chat-rag.spec.md` | Corpus: `docs/manuals/` |
+| Help chat (RAG on secretariat manuals) | `docs/specs/ai/chat-ajuda-rag.spec.md` | Corpus: `docs/manuals/pt` + `en` |
 
 ---
 
@@ -41,7 +43,7 @@ Specs are **done enough to start coding** when every **MVP user journey** has: P
 | Area | Folder | Status | What’s strong today | What to add next (spec debt) |
 |------|--------|--------|---------------------|------------------------------|
 | **Catalog** | `catalog/` | **Thin in monolith** | §17 + `domain.md` | CRUD flows per entity; constraints (delete year with data, rename grade); **editing grade curriculum** when reservations/actives exist; ordering of disciplines; education level vs grade if modeled separately |
-| **Students & guardians** | `students-and-guardians/` | **Strong** | §2–§6, guardian link rules; `person-and-guardian-fields.spec.md` (PT — field matrix, age config) | Optional: import/bulk (if ever in scope); document upload retention; occurrence logging tied to §`domain` Occurrence |
+| **Students & guardians** | `students-and-guardians/` | **Strong** | §2–§6, guardian link rules; `campos-aluno-e-responsavel.spec.md` (PT — field matrix, age config) | Optional: import/bulk (if ever in scope); document upload retention; occurrence logging tied to §`domain` Occurrence |
 | **Enrollment** | `enrollment/` | **Strong** | §7–§15, §8 | Explicit **enrollment code** generation/uniqueness; duplicate-enrollment rule edge cases; read-only views; optional API-oriented acceptance criteria |
 | **Finance** | `finance/` | **Good** | §19 | Installment **states** (open / cancelled / paid-if-ever); **rounding** per installment; timezone/date-only rules; preview totals before Active |
 | **API & errors** | *(no folder yet)* | **Missing** | — | New doc when ready: REST shape, validation errors, idempotency keys, pagination for search—**after** domain specs stabilize |

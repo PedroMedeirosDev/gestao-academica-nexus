@@ -17,7 +17,7 @@ The current system suffers from:
 
 - Deliver an end-to-end **secretariat** flow: academic catalog (years, grades, disciplines, classes), student and guardian data, **enrollment**, **class placement** (enturmação), and discipline assignment driven by **grade (série)** curriculum
 - Reduce manual input using AI-assisted document processing (where applicable)
-- **Secretariat help chat (RAG):** answers “how do I…?” questions using a small set of versioned manuals (see `docs/specs/ai/help-chat-rag.spec.md`); optional later: RAG over per-student enrollment documents
+- **Secretariat help chat (RAG):** answers “how do I…?” questions using a small set of versioned manuals (see `docs/specs/ai/chat-ajuda-rag.spec.md`); optional later: RAG over per-student enrollment documents
 - Prevent data loss with auto-save mechanisms
 - Improve user experience with better search and form structure
 - Optional MVP slice: **generate installments** at enrollment from a configurable **payment plan** (no payment gateway)
@@ -47,7 +47,7 @@ The current system suffers from:
 
 ## Learning & portfolio (technical growth)
 
-The project is also a **structured learning path** toward a full-stack profile (e.g. Next.js + TypeScript, API layer, PostgreSQL + Prisma, Docker, tests). **RAG** is tied to concrete features: **help chat over secretariat manuals** (primary SK slice) and, later if needed, document ingestion for enrollment. See `docs/specs/ai/help-chat-rag.spec.md` and `docs/job-target-sk-aprendizagem.md`. Personal study files belong in repo-root `learning/` (gitignored) — see `docs/learning-notes.md`.
+The project is also a **structured learning path** toward a full-stack profile (e.g. Next.js + TypeScript, API layer, PostgreSQL + Prisma, Docker, tests). **RAG** is tied to concrete features: **help chat over secretariat manuals** (primary SK slice) and, later if needed, document ingestion for enrollment. See `docs/specs/ai/chat-ajuda-rag.spec.md` and `docs/job-target-sk-aprendizagem.md`. Personal study files belong in repo-root `learning/` (gitignored) — see `docs/learning-notes.md`.
 
 **How code and docs relate:** It is valid to use an agent for most implementation work. Your leverage is **clear specs and decisions** (this folder), **review** (does behavior match the spec?), and being able to **explain** *why* each technology exists (problem it solves, trade-off, what would break without it). That skill set is closer to **tech lead / product engineer** than to memorizing syntax.
 

@@ -102,7 +102,7 @@ Se o mesmo guardião for financeiro de vários alunos, preenche-se **uma vez** n
 
 ## 4. Vínculo aluno–responsável (link)
 
-Mantém o monólito: tipo de parentesco, financeiro para **este** aluno, ordem, fonte de endereço “mora com…” quando aplicável (`enrollment-fields…` §4).
+Mantém o monólito: tipo de parentesco, financeiro para **este** aluno, ordem, fonte de endereço “mora com…” quando aplicável (`docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` §4).
 
 ---
 

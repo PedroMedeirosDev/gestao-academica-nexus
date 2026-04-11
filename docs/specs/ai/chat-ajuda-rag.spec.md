@@ -6,7 +6,7 @@
 
 ## Objetivo
 
-Oferecer um **chat de ajuda** na UI da secretaria em que a utilizadora faz perguntas em linguagem natural sobre **como usar o Nexus** (ex.: “Como faço uma matrícula?”, “O que é reserva?”). As respostas são geradas com **RAG** sobre um **conjunto pequeno de manuais** (Markdown ou texto) derivados do próprio escopo do MVP — fáceis de manter porque o produto tem poucas funções.
+Oferecer um **chat de ajuda** na UI da secretaria em que a usuária faz perguntas em linguagem natural sobre **como usar o Nexus** (ex.: “Como faço uma matrícula?”, “O que é reserva?”). As respostas são geradas com **RAG** sobre um **conjunto pequeno de manuais** (Markdown ou texto) derivados do próprio escopo do MVP — fáceis de manter porque o produto tem poucas funções.
 
 ## Corpus (fonte do RAG)
 
@@ -36,6 +36,7 @@ Oferecer um **chat de ajuda** na UI da secretaria em que a utilizadora faz pergu
 
 ## Entregáveis antes de implementar
 
-- [ ] Manuais mínimos em `docs/manuals/pt/` e `docs/manuals/en/` (ou local acordado).
+- [ ] Manuais mínimos em `docs/manuals/pt/` e `docs/manuals/en/` (ou local acordado).  
+- [ ] Smoke de layout **mobile** (320px) nas telas que expõem o chat (ver `docs/stack.spec.md`).
 - [ ] ADR: provedor de embeddings/LLM, pgvector vs Qdrant, retenção de logs.
 - [ ] Testes manuais ou automáticos com perguntas canón (“como matricular”, “cancelar matrícula”) com respostas esperadas aproximadas.

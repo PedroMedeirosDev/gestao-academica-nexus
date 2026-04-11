@@ -115,7 +115,7 @@ Every **Student** and every **Guardian** MUST resolve to exactly **one** identit
 
 ## 6. Student Form
 
-**Field catalog (student vs guardian, demographics, age thresholds, Tailwind-related copy keys):** `docs/specs/students-and-guardians/person-and-guardian-fields.spec.md` (Portuguese).
+**Field catalog (student vs guardian, demographics, age thresholds, Tailwind-related copy keys):** `docs/specs/students-and-guardians/campos-aluno-e-responsavel.spec.md` (Portuguese).
 
 ### Step 1: Personal Data
 
@@ -171,7 +171,7 @@ Guardians are **shared persons**: the same **Guardian** record may be linked to 
 ### Step 3: Address
 
 * Standard address fields
-* Optional **“lives with guardian — use guardian’s address”** mode: when enabled, student address inputs are **locked** until the user selects **exactly one** **Student–Guardian** link as the address source and that guardian’s record has a **complete** address. Full rules: `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` §4.
+* Optional **“lives with guardian — use guardian’s address”** mode: when enabled, student address inputs are **locked** until the user selects **exactly one** **Student–Guardian** link as the address source and that guardian’s record has a **complete** address. Full rules: `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` §4.
 
 #### Behavior
 
@@ -206,7 +206,7 @@ Each enrollment contains:
 * Status
 * Academic Result
 
-**Field-level detail, post-Active edits (class vs grade), and finance regeneration:** `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` (Portuguese — BR).
+**Field-level detail, post-Active edits (class vs grade), and finance regeneration:** `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` (Portuguese — BR).
 
 ### Base disciplines (MVP)
 
@@ -243,7 +243,7 @@ Active       →  Cancelled   (cancelar matrícula já efetivada)
 ```
 
 * **Forbidden in MVP**: any transition into **Suspended**, **Transferred**, or **Completed**; any transition **out of** **Cancelled**; **Active** → **Reservation** (não “desefetivar” no MVP).
-* **While Active**, editing **data fields** of the same enrollment is allowed only under the rules in `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` (e.g. class-only change keeps installments; grade change cancels and regenerates installments — same academic year only; changing academic year on an Active enrollment is **not** supported: cancel + new enrollment).
+* **While Active**, editing **data fields** of the same enrollment is allowed only under the rules in `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` (e.g. class-only change keeps installments; grade change cancels and regenerates installments — same academic year only; changing academic year on an Active enrollment is **not** supported: cancel + new enrollment).
 
 ### Deferred (documented for later, not implemented)
 
@@ -439,7 +439,7 @@ Configurable template managed by secretaria, including at minimum:
 ### Generation trigger
 
 * Installments are generated **only** on the transition **Reservation → Active** (first time the enrollment becomes Active). No other status change generates installments in MVP.
-* **Regeneration:** when an **Active** enrollment’s **grade and/or education level** changes (same academic year) per `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md`, the system MUST **cancel** all existing installments for that enrollment and then **generate** a new set (new snapshot). **Class-only** changes do **not** trigger regeneration.
+* **Regeneration:** when an **Active** enrollment’s **grade and/or education level** changes (same academic year) per `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md`, the system MUST **cancel** all existing installments for that enrollment and then **generate** a new set (new snapshot). **Class-only** changes do **not** trigger regeneration.
 
 ### Idempotency
 

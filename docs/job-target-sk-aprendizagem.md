@@ -32,7 +32,7 @@ Em linguagem direta:
 | **NestJS ou FastAPI** | NestJS (escolha fechada para narrativa TS única) | ✅ Já na stack |
 | **PostgreSQL** | Banco relacional único MVP | ✅ Já na stack |
 | **Prisma** | Schema + migrations | ✅ Já na stack |
-| **RAG / vetores (pgvector ou Qdrant)** | **Chat de ajuda** com manuais versionados (`docs/specs/ai/help-chat-rag.spec.md`); opcionalmente documentos do aluno/matricula num spec à parte | 📋 Manuais + ADR antes de codar |
+| **RAG / vetores (pgvector ou Qdrant)** | **Chat de ajuda** com manuais versionados (`docs/specs/ai/chat-ajuda-rag.spec.md`); opcionalmente documentos do aluno/matricula num spec à parte | 📋 Manuais + ADR antes de codar |
 | **Agentes (N8N ou LangGraph)** | Orquestração de fluxo (ex.: pós-upload de documento, extração assistida, webhook); N8N cobre também **low-code** da vaga | 📋 Mesmo critério: feature + spec |
 | **Docker** | Compose com Postgres (e, na fase deploy, serviços necessários) | ✅ Já previsto; estender quando houver mais serviços |
 | **Cloud / deploy (Vercel, Railway, AWS)** | README de deploy: ex. Next → Vercel; API + DB → Railway/Fly/AWS RDS; variáveis e migrações documentadas | 📋 Documentar na fase “Ship” (`specs/README.md` fase 5) |
@@ -51,7 +51,7 @@ A vaga pede **experiência prática**, não um slide.
 
 O MVP tem **poucas funções**: dá para manter **manuais curtos** (como usar catálogo, aluno, matrícula, parcelas). Um **chat na UI** responde perguntas tipo *“Como faço uma matrícula?”* com **RAG** sobre esses manuais (trechos recuperados + resposta citando a fonte). Justifica bem a vaga e o corpus é **pequeno e versionável**.
 
-- Spec: **`docs/specs/ai/help-chat-rag.spec.md`**
+- Spec: **`docs/specs/ai/chat-ajuda-rag.spec.md`**
 - Corpus: arquivos em **`docs/manuals/pt/`** e **`docs/manuals/en/`** (a criar quando for escrever os textos), **não** na pasta `learning/` (gitignored).
 
 ### Fatia 2 — Documentos do processo (opcional, depois)
@@ -95,7 +95,7 @@ Não precisa fechar tudo de uma vez. Uma **sessão** = um **tema pequeno** + reg
 | 1 | **Catálogo:** série (grade), currículo por série/ano, turma — um bloco de cada vez | `docs/specs/catalog/catalog.spec.md` (já começaste com ano letivo) |
 | 2 | **Finance:** estados das parcelas, arredondamento, datas | `docs/specs/finance/finance.spec.md` |
 | 3 | **API:** formato de erros, listagens, idempotência onde fizer falta | `docs/specs/...` ou `docs/api.spec.md` (quando existir scaffold) |
-| 4 | **IA (SK):** chat de ajuda + RAG sobre manuais | `docs/specs/ai/help-chat-rag.spec.md` + `docs/manuals/pt/` + `docs/manuals/en/` |
+| 4 | **IA (SK):** chat de ajuda + RAG sobre manuais | `docs/specs/ai/chat-ajuda-rag.spec.md` + `docs/manuals/pt/` + `docs/manuals/en/` |
 | 4b | **IA (opcional):** upload → embeddings → RAG em documentos; N8N ou LangGraph | `docs/specs/ai/ingestion.spec.md` (quando for aí) |
 | 5 | **Cenários que justificam Redis, etc.** | Um parágrafo no spec ou um ADR em `decisions.md` (“cache do catálogo porque X”; “rate limit na rota de IA porque Y”) |
 
