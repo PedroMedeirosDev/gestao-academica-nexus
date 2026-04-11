@@ -6,7 +6,7 @@
 
 - Product scope and goals: [`../README.md`](../README.md) (project docs hub — may mix EN/PT during migration)
 - Stack (locked): [`../especificacao-stack.md`](../especificacao-stack.md)
-- SK Aprendizagem job alignment + RAG plan: [`../vaga-sk-aprendizagem.md`](../vaga-sk-aprendizagem.md)
+- Portfolio technical goals + RAG plan: [`../objetivos-tecnicos-portfolio.md`](../objetivos-tecnicos-portfolio.md)
 - Language policy (PT + EN strategy): [`../politica-de-idiomas.md`](../politica-de-idiomas.md)
 
 ## Glossary (quick)

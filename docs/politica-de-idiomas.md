@@ -20,7 +20,7 @@ Isso é diferente de “fiz a tela em português e depois copiei um README em in
 
 ---
 
-## Objetivo do projeto (vagas BR + contexto internacional)
+## Objetivo do projeto (Brasil + contexto internacional)
 
 - **Português (Brasil):** idioma **nativo** e **principal** para escrever e manter **specs** e regras finas — menos atrito, menos erro de interpretação.
 - **Inglês:** **não** abandonar — é porta de entrada para recrutador estrangeiro, GitHub global e entrevista em inglês. O projeto oferece **acesso em inglês** (UI com locale `en`) e **documentação de entrada em inglês** (`docs/en/`, README raiz pode ser EN ou bilíngue — ver abaixo).

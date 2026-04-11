@@ -1,6 +1,6 @@
 # Chat de ajuda da secretaria (RAG sobre manuais)
 
-**Status:** decisão de produto alinhada à vaga SK (RAG com uso concreto). Complementa `docs/vaga-sk-aprendizagem.md`. Destrutivo não aplica aqui; respostas não substituem confirmações da §16 do `student-flow.spec.md`.
+**Status:** decisão de produto — chat de ajuda com RAG (uso concreto). Complementa `docs/objetivos-tecnicos-portfolio.md`. Destrutivo não aplica aqui; respostas não substituem confirmações da §16 do `student-flow.spec.md`.
 
 ---
 
@@ -27,7 +27,7 @@ Oferecer um **chat de ajuda** na UI da secretaria em que a usuária faz pergunta
 
 - O chat **não** executa ações nem altera dados; só **orienta**.
 - Perguntas fora do domínio do Nexus (geralidades, outras apps): recusar educadamente ou mesma mensagem de “não encontrei nos manuais”.
-- **Rate limiting** e custos de API: definir no ADR ou no spec de API quando existir (opcional Redis — ver `vaga-sk-aprendizagem.md`).
+- **Rate limiting** e custos de API: definir no ADR ou no spec de API quando existir (opcional Redis — ver `docs/objetivos-tecnicos-portfolio.md`).
 
 ## Relação com outra fatia IA (documentos do aluno)
 

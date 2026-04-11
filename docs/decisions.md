@@ -182,7 +182,7 @@ Aligns with common job postings, a single TypeScript story across API and UI, an
 
 ### Context
 
-The SK Aprendizagem role expects practical **RAG** experience. The MVP surface is small enough to maintain short, accurate **how-to manuals**.
+Portfolio and typical market expectations include practical **RAG** experience. The MVP surface is small enough to maintain short, accurate **how-to manuals**.
 
 ### Decision
 
@@ -197,7 +197,7 @@ Ship a **help chat** in the secretariat UI. Answers are generated with **RAG** o
 ### Related
 
 - `docs/specs/ia/chat-ajuda-rag.spec.md`
-- `docs/vaga-sk-aprendizagem.md`
+- `docs/objetivos-tecnicos-portfolio.md`
 
 ---
 

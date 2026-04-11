@@ -66,7 +66,7 @@ Use the same **order** for learning and for closing spec debt: each phase has a 
 | **4 — Quality** | Extract **test scenarios** from specs (Given/When/Then) | Jest/Vitest, integration tests with test DB | Tests for critical domain rules |
 | **5 — Ship** | Deploy & env spec (non-secret): services, ports, health | Docker Compose, one cloud target | Runnable demo |
 
-**Job posting alignment:** Phases 1–4 cover React/Next/TS/Nest/Postgres/Prisma/Docker/tests. For **SK Aprendizagem** (RAG, agents, Redis, deploy), see `docs/vaga-sk-aprendizagem.md` — those layers enter only with an explicit feature spec + ADR, not as a disconnected demo.
+**Portfolio / market-aligned layers:** Phases 1–4 cover React/Next/TS/Nest/Postgres/Prisma/Docker/tests. For optional RAG, agents, Redis, and deploy mapping, see `docs/objetivos-tecnicos-portfolio.md` — those layers enter only with an explicit feature spec + ADR, not as a disconnected demo.
 
 ---
 

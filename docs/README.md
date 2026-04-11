@@ -47,13 +47,13 @@ The current system suffers from:
 
 ## Learning & portfolio (technical growth)
 
-The project is also a **structured learning path** toward a full-stack profile (e.g. Next.js + TypeScript, API layer, PostgreSQL + Prisma, Docker, tests). **RAG** is tied to concrete features: **help chat over secretariat manuals** (primary SK slice) and, later if needed, document ingestion for enrollment. See `docs/specs/ia/chat-ajuda-rag.spec.md` and `docs/vaga-sk-aprendizagem.md`. Personal study files belong in repo-root `learning/` (gitignored) — see `docs/notas-aprendizado-local.md`.
+The project is also a **structured learning path** toward a full-stack profile (e.g. Next.js + TypeScript, API layer, PostgreSQL + Prisma, Docker, tests). **RAG** is tied to concrete features: **help chat over secretariat manuals** (primary slice) and, later if needed, document ingestion for enrollment. See `docs/specs/ia/chat-ajuda-rag.spec.md` and `docs/objetivos-tecnicos-portfolio.md`. Personal study files belong in repo-root `learning/` (gitignored) — see `docs/notas-aprendizado-local.md`.
 
 **How code and docs relate:** It is valid to use an agent for most implementation work. Your leverage is **clear specs and decisions** (this folder), **review** (does behavior match the spec?), and being able to **explain** *why* each technology exists (problem it solves, trade-off, what would break without it). That skill set is closer to **tech lead / product engineer** than to memorizing syntax.
 
 Suggested order: solid **TypeScript** and **domain modeling** → **Prisma schema** matching this docs folder → **NestJS** API → **Next.js** UI for secretariat flows → **Docker** + local PostgreSQL → **automated tests** for domain rules → then optional **Redis**, **pgvector**, or automation tools if they support a real use case. Stack details: `especificacao-stack.md` (`docs/especificacao-stack.md`).
 
-**Job-target alignment (SK Aprendizagem):** requirement-to-project mapping and planned AI/deploy layers — `docs/vaga-sk-aprendizagem.md`. Use it while finishing specs so nothing valued by the role is left implicit.
+**Portfolio technical goals:** how common stack themes map to this repo — `docs/objetivos-tecnicos-portfolio.md`.
 
 **Languages:** behavioral specs are **canonical in PT-BR** where noted; **English** entry point for readers — `docs/en/README.md`. Full policy: `docs/politica-de-idiomas.md` (i18n + **layout** when PT/EN strings differ in length).
 
@@ -66,7 +66,7 @@ Suggested order: solid **TypeScript** and **domain modeling** → **Prisma schem
 - `docs/notas-aprendizado-local.md` — why `learning/` is gitignored (personal notes vs versioned docs)
 - `docs/domain.md` — entities and relationships
 - `docs/decisions.md` — architecture and product decisions (ADRs)
-- `docs/vaga-sk-aprendizagem.md` — SK Aprendizagem technical requirements ↔ Nexus demonstration plan
+- `docs/objetivos-tecnicos-portfolio.md` — technical demonstration goals (generic, no employer names)
 - `docs/especificacao-stack.md` — locked technologies (NestJS, Prisma, PostgreSQL, Next.js, Docker, TS)
 - `docs/specs/README.md` — **spec program**: process, coverage matrix, gaps, and **learning phases** aligned with implementation order
 - `docs/student-flow.spec.md` — behavioral rules (student, enrollment, class, finance subset); dependency/recovery **deferred**
