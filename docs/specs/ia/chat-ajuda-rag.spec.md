@@ -15,7 +15,7 @@ Oferecer um **chat de ajuda** na UI da secretaria em que a usuária faz pergunta
 
 ## Comportamento (MVP)
 
-1. A utilizadora abre o painel de ajuda (ex.: ícone “?” ou “Ajuda”).
+1. A usuária abre o painel de ajuda (ex.: ícone “?” ou “Ajuda”).
 2. Pergunta livre num campo de chat.
 3. O backend **recupera** trechos relevantes dos manuais (embeddings + pgvector ou alternativa definida no ADR), **monta o contexto** e chama o LLM.
 4. A resposta deve:
@@ -36,7 +36,7 @@ Oferecer um **chat de ajuda** na UI da secretaria em que a usuária faz pergunta
 
 ## Entregáveis antes de implementar
 
-- [ ] Manuais mínimos em `docs/manuals/pt/` e `docs/manuals/en/` (ou local acordado).  
+- [x] Manuais mínimos **iniciados** em `docs/manuals/pt/` e `docs/manuals/en/` (`matricula-visao-geral.md`, `enrollment-overview.md`). Expandir com catálogo, aluno, financeiro quando os specs estiverem prontos.  
 - [ ] Smoke de layout **mobile** (320px) nas telas que expõem o chat (ver `docs/especificacao-stack.md`).
 - [ ] ADR: provedor de embeddings/LLM, pgvector vs Qdrant, retenção de logs.
 - [ ] Testes manuais ou automáticos com perguntas canón (“como matricular”, “cancelar matrícula”) com respostas esperadas aproximadas.
