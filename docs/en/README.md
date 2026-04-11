@@ -5,9 +5,9 @@
 ## Start here
 
 - Product scope and goals: [`../README.md`](../README.md) (project docs hub — may mix EN/PT during migration)
-- Stack (locked): [`../stack.spec.md`](../stack.spec.md)
-- SK Aprendizagem job alignment + RAG plan: [`../job-target-sk-aprendizagem.md`](../job-target-sk-aprendizagem.md)
-- Language policy (PT + EN strategy): [`../language-policy.md`](../language-policy.md)
+- Stack (locked): [`../especificacao-stack.md`](../especificacao-stack.md)
+- SK Aprendizagem job alignment + RAG plan: [`../vaga-sk-aprendizagem.md`](../vaga-sk-aprendizagem.md)
+- Language policy (PT + EN strategy): [`../politica-de-idiomas.md`](../politica-de-idiomas.md)
 
 ## Glossary (quick)
 

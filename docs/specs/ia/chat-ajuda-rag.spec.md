@@ -1,6 +1,6 @@
 # Chat de ajuda da secretaria (RAG sobre manuais)
 
-**Status:** decisão de produto alinhada à vaga SK (RAG com uso concreto). Complementa `docs/job-target-sk-aprendizagem.md`. Destrutivo não aplica aqui; respostas não substituem confirmações da §16 do `student-flow.spec.md`.
+**Status:** decisão de produto alinhada à vaga SK (RAG com uso concreto). Complementa `docs/vaga-sk-aprendizagem.md`. Destrutivo não aplica aqui; respostas não substituem confirmações da §16 do `student-flow.spec.md`.
 
 ---
 
@@ -10,7 +10,7 @@ Oferecer um **chat de ajuda** na UI da secretaria em que a usuária faz pergunta
 
 ## Corpus (fonte do RAG)
 
-- Conteúdo **estável e versionado** no repositório: `docs/manuals/pt/` e `docs/manuals/en/` (um **arquivo** por tema em cada idioma: catálogo, alunos, matrícula, financeiro — ver `docs/manuals/README.md`).
+- Conteúdo **estável e versionado** no repositório: `docs/manuals/pt/` e `docs/manuals/en/` (um **arquivo** por tema em cada idioma: catálogo, alunos, matrícula, financeiro — ver `docs/manuals/leiame.md`).
 - **Proibido** depender apenas de arquivos dentro de `learning/` (essa pasta é **gitignored** e não faz parte do clone para terceiros).
 
 ## Comportamento (MVP)
@@ -27,7 +27,7 @@ Oferecer um **chat de ajuda** na UI da secretaria em que a usuária faz pergunta
 
 - O chat **não** executa ações nem altera dados; só **orienta**.
 - Perguntas fora do domínio do Nexus (geralidades, outras apps): recusar educadamente ou mesma mensagem de “não encontrei nos manuais”.
-- **Rate limiting** e custos de API: definir no ADR ou no spec de API quando existir (opcional Redis — ver `job-target-sk-aprendizagem.md`).
+- **Rate limiting** e custos de API: definir no ADR ou no spec de API quando existir (opcional Redis — ver `vaga-sk-aprendizagem.md`).
 
 ## Relação com outra fatia IA (documentos do aluno)
 
@@ -37,6 +37,6 @@ Oferecer um **chat de ajuda** na UI da secretaria em que a usuária faz pergunta
 ## Entregáveis antes de implementar
 
 - [ ] Manuais mínimos em `docs/manuals/pt/` e `docs/manuals/en/` (ou local acordado).  
-- [ ] Smoke de layout **mobile** (320px) nas telas que expõem o chat (ver `docs/stack.spec.md`).
+- [ ] Smoke de layout **mobile** (320px) nas telas que expõem o chat (ver `docs/especificacao-stack.md`).
 - [ ] ADR: provedor de embeddings/LLM, pgvector vs Qdrant, retenção de logs.
 - [ ] Testes manuais ou automáticos com perguntas canón (“como matricular”, “cancelar matrícula”) com respostas esperadas aproximadas.

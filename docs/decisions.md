@@ -162,7 +162,7 @@ Include a **minimal** finance slice:
 
 ### Decision
 
-**NestJS** (API), **Prisma** (ORM/migrations), **PostgreSQL** (database), **Docker** for local DB reproducibility. **Next.js** for the secretariat UI — see `stack.spec.md` for the full locked list and ordering.
+**NestJS** (API), **Prisma** (ORM/migrations), **PostgreSQL** (database), **Docker** for local DB reproducibility. **Next.js** for the secretariat UI — see `docs/especificacao-stack.md` for the full locked list and ordering.
 
 ### Rationale
 
@@ -170,11 +170,11 @@ Aligns with common job postings, a single TypeScript story across API and UI, an
 
 ### Related
 
-- **`docs/stack.spec.md`** — authoritative technology list (sync this repo across machines; chat history is not the source of truth)
+- **`docs/especificacao-stack.md`** — authoritative technology list (sync this repo across machines; chat history is not the source of truth)
 
 ### Status
 
-**Locked** for MVP implementation; changes require updating `stack.spec.md` and this ADR section.
+**Locked** for MVP implementation; changes require updating `docs/especificacao-stack.md` and this ADR section.
 
 ---
 
@@ -196,8 +196,8 @@ Ship a **help chat** in the secretariat UI. Answers are generated with **RAG** o
 
 ### Related
 
-- `docs/specs/ai/chat-ajuda-rag.spec.md`
-- `docs/job-target-sk-aprendizagem.md`
+- `docs/specs/ia/chat-ajuda-rag.spec.md`
+- `docs/vaga-sk-aprendizagem.md`
 
 ---
 
@@ -221,7 +221,7 @@ Matches real secretariat corrections (wrong class vs wrong grade) and keeps fina
 
 ### Related
 
-- `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` (Portuguese — detailed rules)
+- `docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md` (Portuguese — detailed rules)
 - `docs/student-flow.spec.md` §8, §19
 
 ---
@@ -244,7 +244,7 @@ Requires explicit **which** guardian supplies the address, avoiding ambiguity wh
 
 ### Related
 
-- `docs/specs/enrollment/matricula-campos-edicoes-pos-ativa.spec.md` §4
+- `docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md` §4
 - `docs/student-flow.spec.md` §6 Step 3
 
 ---
@@ -261,7 +261,7 @@ Faster iteration, consistent spacing, aligns with common job stacks and keeps st
 
 ### Related
 
-- `docs/stack.spec.md` — UI section
+- `docs/especificacao-stack.md` — UI section
 
 ---
 
@@ -280,7 +280,7 @@ Expose **institution-configurable** integers (env or settings table in a later p
 
 ### Related
 
-- `docs/specs/students-and-guardians/campos-aluno-e-responsavel.spec.md` §1
+- `docs/specs/alunos-e-responsaveis/campos-aluno-e-responsavel.spec.md` §1
 
 ---
 
@@ -298,4 +298,4 @@ Easier navigation and consistent expectations for contributors and reviewers.
 ### Related
 
 - `docs/specs/README.md`
-- `docs/language-policy.md`
+- `docs/politica-de-idiomas.md`

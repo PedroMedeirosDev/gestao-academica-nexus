@@ -7,11 +7,11 @@ Academic management system for school secretariat workflows (catalog, students, 
 - **English documentation index** and glossary: [`docs/en/README.md`](docs/en/README.md)
 - **Full docs hub** (scope, stack, language policy): [`docs/README.md`](docs/README.md)
 
-Behavioral specifications are **canonical in Brazilian Portuguese** where noted; English summaries and UI copy follow the [language policy](docs/language-policy.md).
+Behavioral specifications are **canonical in Brazilian Portuguese** where noted; English summaries and UI copy follow the [language policy](docs/politica-de-idiomas.md).
 
 ## Stack (high level)
 
-TypeScript, Next.js, NestJS, PostgreSQL, Prisma, Docker — see [`docs/stack.spec.md`](docs/stack.spec.md).
+TypeScript, Next.js, NestJS, PostgreSQL, Prisma, Docker — see [`docs/especificacao-stack.md`](docs/especificacao-stack.md).
 
 ## License
 

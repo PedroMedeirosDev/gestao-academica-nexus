@@ -31,6 +31,7 @@ Isso é diferente de “fiz a tela em português e depois copiei um README em in
 
 - Texto **em português** → nome do arquivo **em português** (kebab-case, sem acentos nos nomes para evitar dor em Windows/Git, ex.: `campos-aluno-e-responsavel.spec.md`).
 - Texto **em inglês** → nome **em inglês** (ex.: `catalog.spec.md`).
+- **Pastas** de specs em português: `docs/specs/catalogo/`, `alunos-e-responsaveis/`, `matricula/`, `financeiro/`, `ia/` (conteúdo e convenções em `docs/specs/README.md`).
 
 ---
 
@@ -63,7 +64,7 @@ Isso é diferente de “fiz a tela em português e depois copiei um README em in
 - Tabelas: cabeçalhos podem usar **duas linhas** ou **tooltip** se a coluna for estreita; evitar “…” sem acesso ao texto completo.
 - **Não** desenhar a tela só no Figma em um idioma e assumir que o outro encaixa igual — revisar **os dois** locales nas telas críticas (matrícula, cancelamento, confirmações §16).
 - Biblioteca de i18n (ex.: `next-intl`, `react-i18next`): usar **plural** e **interpolação** certas (`{count}`) para não quebrar ordem de palavras entre idiomas.
-- **Mobile:** o mesmo layout precisa **funcionar até ~320px** de largura (ver `docs/stack.spec.md` — responsividade obrigatória): botões e links com área tocável adequada, formulários empilhados, tabelas com scroll horizontal ou cartões em telas pequenas.
+- **Mobile:** o mesmo layout precisa **funcionar até ~320px** de largura (ver `docs/especificacao-stack.md` — responsividade obrigatória): botões e links com área tocável adequada, formulários empilhados, tabelas com scroll horizontal ou cartões em telas pequenas.
 
 Isso reduz “surpresa” na hora do build; não zera o trabalho, mas deixa previsível.
 

@@ -10,7 +10,7 @@ Na **raiz do repositório** existe a pasta **`learning/`**, listada no **`.gitig
 ## O que **não** substitui
 
 - **Specs** (`docs/specs/`, `student-flow.spec.md`, etc.) e **ADRs** (`decisions.md`) continuam no Git: são a fonte de verdade do comportamento do Nexus.
-- O **corpus** do chat de ajuda com RAG (manuais da secretaria) deve viver em arquivos **versionados** (por exemplo `docs/manuals/` no futuro) ou em outro processo de deploy documentado — assim o portfolio e a demo são reproduzíveis. A pasta `learning/` é só para o teu caminho de estudo.
+- O **corpus** do chat de ajuda com RAG (manuais da secretaria) deve viver em arquivos **versionados** (por exemplo `docs/manuals/pt/` e `docs/manuals/en/`; ver `docs/manuals/leiame.md`) ou em outro processo de deploy documentado — assim o portfolio e a demo são reproduzíveis. A pasta `learning/` é só para o teu caminho de estudo.
 
 ## Como usar
 

@@ -12,7 +12,7 @@ Cada **matrícula** (enrollment), além do vínculo com o **aluno**, deve expor 
 
 | Campo / conceito | Obrigatório | Notas |
 |-------------------|-------------|--------|
-| **Ano letivo** | Sim | Inteiro, regras em `catalog.spec.md` |
+| **Ano letivo** | Sim | Inteiro, regras em `docs/specs/catalogo/catalog.spec.md` |
 | **Nível de ensino** | Sim | Alinhado ao catálogo e à matrícula |
 | **Série** | Sim | Define currículo base (Grade Curriculum) |
 | **Tipo de matrícula** | Sim | Enum já usado nas regras de duplicidade (§10) |
