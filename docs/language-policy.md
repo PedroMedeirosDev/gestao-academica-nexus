@@ -44,6 +44,21 @@ Isso é diferente de “fiz a tela em português e depois copiei um README em in
 - **i18n** como acima: `pt-BR` **padrão** (escola no Brasil), `en` **sempre disponível** (seletor de idioma ou rota `/en` / `/pt`).
 - Erros para a UI: **código** estável (`ENROLLMENT_DUPLICATE`) + mensagem traduzida no cliente (ou mensagem traduzida vinda da API, mas com contrato claro).
 
+### Layout e tamanho dos textos (PT vs EN)
+
+É **normal** o mesmo botão ficar mais largo em inglês (“Save” vs “Salvar”) ou uma label quebrar linha de outro jeito. Isso não é falha do i18n — é **expansão de texto** (às vezes 30–50% a mais em EN em relação a abreviações em PT, ou o contrário em frases longas).
+
+**Diretrizes para a UI do Nexus (quando for implementar):**
+
+- Evitar **largura fixa em px** em botões e chips; preferir **`min-width` baixo**, **`padding` horizontal** e deixar o conteúdo ditar o resto, ou `inline-flex` com `gap`.
+- Formulários: labels e hints em **`max-width` + quebra de linha** (`word-break` / `overflow-wrap` onde fizer sentido), não truncar mensagem de erro importante só para caber.
+- Grids e colunas: onde hoje “cabe em PT”, testar com **strings longas de propósito** no arquivo `en` (smoke visual) antes de fechar o layout.
+- Tabelas: cabeçalhos podem usar **duas linhas** ou **tooltip** se a coluna for estreita; evitar “…” sem acesso ao texto completo.
+- **Não** desenhar a tela só no Figma em um idioma e assumir que o outro encaixa igual — revisar **os dois** locales nas telas críticas (matrícula, cancelamento, confirmações §16).
+- Biblioteca de i18n (ex.: `next-intl`, `react-i18next`): usar **plural** e **interpolação** certas (`{count}`) para não quebrar ordem de palavras entre idiomas.
+
+Isso reduz “surpresa” na hora do build; não zera o trabalho, mas deixa previsível.
+
 ---
 
 ## Manuais do RAG
