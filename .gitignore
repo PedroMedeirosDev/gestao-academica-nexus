@@ -11,6 +11,9 @@ build/
 .env.*
 !.env.example
 
+# Personal learning notes (not part of the portfolio source of truth)
+learning/
+
 # OS / editor
 .DS_Store
 Thumbs.db

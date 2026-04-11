@@ -165,10 +165,11 @@ Guardians are **shared persons**: the same **Guardian** record may be linked to 
 ### Step 3: Address
 
 * Standard address fields
+* Optional **“lives with guardian — use guardian’s address”** mode: when enabled, student address inputs are **locked** until the user selects **exactly one** **Student–Guardian** link as the address source and that guardian’s record has a **complete** address. Full rules: `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` §4.
 
 #### Behavior
 
-* Must auto-fill via CEP
+* Must auto-fill via CEP (when not in guardian-address mode, or when policy applies to copied address)
 
 ---
 
@@ -198,6 +199,8 @@ Each enrollment contains:
 * Enrollment Type
 * Status
 * Academic Result
+
+**Field-level detail, post-Active edits (class vs grade), and finance regeneration:** `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` (Portuguese — BR).
 
 ### Base disciplines (MVP)
 
@@ -234,6 +237,7 @@ Active       →  Cancelled   (cancelar matrícula já efetivada)
 ```
 
 * **Forbidden in MVP**: any transition into **Suspended**, **Transferred**, or **Completed**; any transition **out of** **Cancelled**; **Active** → **Reservation** (não “desefetivar” no MVP).
+* **While Active**, editing **data fields** of the same enrollment is allowed only under the rules in `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` (e.g. class-only change keeps installments; grade change cancels and regenerates installments — same academic year only; changing academic year on an Active enrollment is **not** supported: cancel + new enrollment).
 
 ### Deferred (documented for later, not implemented)
 
@@ -368,6 +372,7 @@ Each regular class must contain at minimum:
 
 * Identifies the operational school year (e.g. 2026)
 * Scopes grades, grade curricula, and regular classes
+* Detailed CRUD rules: `docs/specs/catalog/catalog.spec.md` (Academic Year slice)
 
 ### Grade (Série)
 
@@ -428,10 +433,11 @@ Configurable template managed by secretaria, including at minimum:
 ### Generation trigger
 
 * Installments are generated **only** on the transition **Reservation → Active** (first time the enrollment becomes Active). No other status change generates installments in MVP.
+* **Regeneration:** when an **Active** enrollment’s **grade and/or education level** changes (same academic year) per `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md`, the system MUST **cancel** all existing installments for that enrollment and then **generate** a new set (new snapshot). **Class-only** changes do **not** trigger regeneration.
 
 ### Idempotency
 
-* Generating installments for an enrollment MUST be **idempotent**: if installments already exist for that enrollment, the system MUST NOT create duplicates (e.g. block second run or show clear error); prefer **“generate only when count is zero”** for MVP
+* Generating installments for an enrollment MUST be **idempotent**: if installments already exist for that enrollment, the system MUST NOT create duplicates **except** within the defined **cancel-then-regenerate** transaction for grade changes (see linked spec). Prefer **“generate only when count is zero”** on first activation; regeneration must leave exactly one active generation batch per business operation.
 
 ### Enrollment cancellation (installments)
 

@@ -160,14 +160,89 @@ Include a **minimal** finance slice:
 
 ## Backend and tooling (portfolio)
 
-### Decision (provisional)
+### Decision
 
-Pick **one** API stack (e.g. NestJS **or** FastAPI) and **Prisma + PostgreSQL** for persistence; containerize with Docker for reproducibility.
+**NestJS** (API), **Prisma** (ORM/migrations), **PostgreSQL** (database), **Docker** for local DB reproducibility. **Next.js** for the secretariat UI — see `stack.spec.md` for the full locked list and ordering.
 
 ### Rationale
 
-Aligns with common job postings and keeps the story coherent in README and interviews.
+Aligns with common job postings, a single TypeScript story across API and UI, and keeps interview narrative coherent.
+
+### Related
+
+- **`docs/stack.spec.md`** — authoritative technology list (sync this repo across machines; chat history is not the source of truth)
 
 ### Status
 
-Final choice recorded when the repository scaffold exists.
+**Locked** for MVP implementation; changes require updating `stack.spec.md` and this ADR section.
+
+---
+
+## Secretariat help chat (RAG over manuals)
+
+### Context
+
+The SK Aprendizagem role expects practical **RAG** experience. The MVP surface is small enough to maintain short, accurate **how-to manuals**.
+
+### Decision
+
+Ship a **help chat** in the secretariat UI. Answers are generated with **RAG** over **versioned** manual content in the repo (planned: `docs/manuals/`), not over gitignored personal notes.
+
+### Rationale
+
+- Clear interview story: corpus → embeddings → retrieval → grounded answers with citations
+- Manuals stay small and aligned with specs; fast to author
+- Distinct from (optional) future RAG over uploaded student/enrollment documents
+
+### Related
+
+- `docs/specs/ai/help-chat-rag.spec.md`
+- `docs/job-target-sk-aprendizagem.md`
+
+---
+
+## Post-active enrollment edits (grade vs class)
+
+### Context
+
+The MVP originally implied installments are generated once on **Reservation → Active** and did not spell out edits while **Active**.
+
+### Decision
+
+- **Active → Reservation** remains **forbidden**.
+- While **Active**, secretariat may:
+  - **Change only the regular class** (same academic year, same education level, same grade, same enrollment type): **keep** all existing installments unchanged; update class assignment only.
+  - **Change grade and/or education level** (same academic year only): **rematerialize** subjects from the new grade curriculum; **cancel all** installments for that enrollment and **regenerate** from the new series’ default payment model **or** from manually entered amounts on the same confirmation flow (with preview).
+- **Changing academic year** on an already **Active** enrollment is **out of scope**: use **cancel** enrollment + **new** enrollment for the new year.
+
+### Rationale
+
+Matches real secretariat corrections (wrong class vs wrong grade) and keeps finance consistent: different grade ⇒ new amounts; same grade ⇒ same charges.
+
+### Related
+
+- `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` (Portuguese — detailed rules)
+- `docs/student-flow.spec.md` §8, §19
+
+---
+
+## Student address: “lives with guardian” source
+
+### Context
+
+Families often share one address; secretariat should not retype the same CEP twice.
+
+### Decision
+
+- On the student address step, offer **“Mora com responsável — usar endereço do responsável”** (final label for UX).
+- When enabled: student address fields are **locked** until the user selects **exactly one** **Student–Guardian** link as the address source, and that guardian’s person record has a **complete** address.
+- If no father/mother links exist, allow any linked guardian as source (see detailed spec).
+
+### Rationale
+
+Requires explicit **which** guardian supplies the address, avoiding ambiguity when parents differ.
+
+### Related
+
+- `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` §4
+- `docs/student-flow.spec.md` §6 Step 3

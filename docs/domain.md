@@ -8,7 +8,7 @@
 
 ## Academic Year
 
-Represents an operational school year (e.g. 2026).
+Represents an operational school year as a **single integer** (e.g. `2026`), unique in MVP scope.
 
 - Contains grades, curriculum templates, and classes in scope for that year
 
@@ -70,6 +70,7 @@ Central entity of the system.
 
 A **person** in the institution’s directory (not owned by a single student).
 
+- May store a **postal address** on the person record (used when a student’s address is derived from “lives with guardian” — see enrollment spec)
 - **Strong key:** **CPF** when the person has one (Track A); **identity document type + number** when there is **no** CPF—foreigner / exception path (Track B), same idea as students (see `student-flow.spec.md` §5)
 - May be linked to **many students** (e.g. siblings, former students still on file)
 - **Search and link** when registering a student avoids duplicate rows and speeds up matrícula (see `student-flow.spec.md`)
@@ -81,6 +82,7 @@ A **person** in the institution’s directory (not owned by a single student).
 Associates one **Student** with one **Guardian** for a given role/context.
 
 - Holds **relationship type** (father, mother, etc.) and **financial responsible** flag **for that student**
+- Optionally, for **student address “lives with guardian”** mode, **at most one** link per student may be flagged as the **address source** for the student’s registered address (see `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` §4)
 - Deleting a **student** removes **links** to that student; **Guardian** rows remain unless a separate delete path runs under strict rules (see spec—never delete if still linked to another student)
 
 ---
