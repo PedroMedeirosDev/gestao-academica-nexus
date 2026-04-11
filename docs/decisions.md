@@ -246,3 +246,38 @@ Requires explicit **which** guardian supplies the address, avoiding ambiguity wh
 
 - `docs/specs/enrollment/enrollment-fields-and-post-active-edits.spec.md` §4
 - `docs/student-flow.spec.md` §6 Step 3
+
+---
+
+## UI styling: Tailwind CSS
+
+### Decision
+
+Use **Tailwind CSS** (utility-first) for the Next.js secretariat UI. Avoid ad-hoc `.css` files except a documented rare global entry if needed.
+
+### Rationale
+
+Faster iteration, consistent spacing, aligns with common job stacks and keeps styling co-located with components.
+
+### Related
+
+- `docs/stack.spec.md` — UI section
+
+---
+
+## Age thresholds (majority and student marital status)
+
+### Context
+
+Legal age of majority and when marital status is relevant differ by country (and by U.S. state for some acts). The product must not hard-code one jurisdiction silently.
+
+### Decision
+
+Expose **institution-configurable** integers (env or settings table in a later phase), with documented defaults:
+
+- `majorityAge` (default **18**) for “student is adult” UX and validations.
+- `minAgeStudentMaritalStatus` (default **18**) for showing **student** marital status; institutions may set **16** only with their own policy/legal review.
+
+### Related
+
+- `docs/specs/students-and-guardians/person-and-guardian-fields.spec.md` §1

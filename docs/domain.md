@@ -70,6 +70,8 @@ Central entity of the system.
 
 A **person** in the institution’s directory (not owned by a single student).
 
+- **Email** and **phone** are required in MVP (contact). **Address** is required on the person record; if the guardian is **financially responsible** for any student link, **address** and **profession** must be complete before enrollment flows that depend on finance (see `docs/specs/students-and-guardians/person-and-guardian-fields.spec.md`).
+- Optional **education level** (grau de instrução) on the guardian person—not collected for students in MVP.
 - May store a **postal address** on the person record (used when a student’s address is derived from “lives with guardian” — see enrollment spec)
 - **Strong key:** **CPF** when the person has one (Track A); **identity document type + number** when there is **no** CPF—foreigner / exception path (Track B), same idea as students (see `student-flow.spec.md` §5)
 - May be linked to **many students** (e.g. siblings, former students still on file)

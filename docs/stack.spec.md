@@ -31,6 +31,7 @@ Este documento fixa as **tecnologias acordadas** para implementação. Conversas
 ## UI (frontend)
 
 - **Next.js** (App Router) para a interface da secretaria, em TypeScript.
+- **Tailwind CSS** para estilo: **utility-first**; evitar arquivos `.css` próprios ao máximo (exceção pontual: reset mínimo ou variáveis globais num único arquivo se a equipe decidir — documentar no README do pacote `web`).
 - **i18n obrigatório:** `pt-BR` (padrão) e `en` no produto; todas as strings visíveis via catálogo de tradução (sem texto solto no JSX para o usuário final). Detalhes e layout com textos de tamanhos diferentes: `docs/language-policy.md` (seção “Layout e tamanho dos textos”).
 
 **Ordem sugerida de entrega:** domínio + Prisma estável → API Nest → telas Next consumindo a API.

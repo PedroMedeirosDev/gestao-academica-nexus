@@ -115,6 +115,8 @@ Every **Student** and every **Guardian** MUST resolve to exactly **one** identit
 
 ## 6. Student Form
 
+**Field catalog (student vs guardian, demographics, age thresholds, Tailwind-related copy keys):** `docs/specs/students-and-guardians/person-and-guardian-fields.spec.md` (Portuguese).
+
 ### Step 1: Personal Data
 
 * Name
@@ -122,6 +124,7 @@ Every **Student** and every **Guardian** MUST resolve to exactly **one** identit
 * **Either** Track A: **CPF** **or** Track B: **identity document** (type + number, per §5)
 * **RG** remains allowed for Brazilian students when the product still collects it alongside CPF, or as national secondary ID—exact combination with Track A/B is implementation-defined, but **uniqueness** always follows §5 (CPF **or** foreign-doc composite, not both as dual primary keys).
 * Image Authorization
+* **Sex, nationality** (and other principal fields per linked spec); **marital status** for the **student** only if age ≥ configured `minAgeStudentMaritalStatus` (default **18**, institution-configurable—see linked spec); **no** student “education level” (grau de instrução) in MVP
 
 #### Rules
 
@@ -144,11 +147,14 @@ Guardians are **shared persons**: the same **Guardian** record may be linked to 
 
 2. **Create new guardian**
    * Full capture: **Name**, **Track A or B identity** (CPF **or** document type + number per §5), **Relationship type**, **Financial responsible** flag, **Deceased** flag (on the person, when applicable).
+   * **Contact:** **email** and **phone** required on the guardian person record (MVP).
+   * **Address:** required on the guardian person; **stricter** when this person is **financial responsible** for the student (complete address + **profession** required—see linked spec).
+   * **Education level (grau de instrução):** optional on guardian only; not collected for students in MVP.
    * If **CPF** or **foreign-doc composite** matches an existing guardian, MUST **block** a duplicate person row and steer the user to **link existing** (see §5).
 
 #### Data on the guardian vs on the link
 
-* **Guardian (person):** identity fields (name, CPF **and/or** foreign document fields per track, deceased, contact data if stored here, etc.).
+* **Guardian (person):** identity fields (name, CPF **and/or** foreign document fields per track, deceased, **email**, **phone**, **address**, **profession** when financially responsible, optional education level—see linked spec).
 * **Student–guardian link:** relationship type, financial-responsible-for-**this**-student, ordering/display if needed.
 
 #### Rules
