@@ -55,7 +55,7 @@ Suggested order: solid **TypeScript** and **domain modeling** → **Prisma schem
 
 **Job-target alignment (SK Aprendizagem):** requirement-to-project mapping and planned AI/deploy layers — `docs/job-target-sk-aprendizagem.md`. Use it while finishing specs so nothing valued by the role is left implicit.
 
-**Languages:** behavioral specs are **canonical in PT-BR** where noted; **English** entry point for readers — `docs/en/README.md`. Full policy: `docs/language-policy.md`.
+**Languages:** behavioral specs are **canonical in PT-BR** where noted; **English** entry point for readers — `docs/en/README.md`. Full policy: `docs/language-policy.md` (i18n + **layout** when PT/EN strings differ in length).
 
 ---
 
