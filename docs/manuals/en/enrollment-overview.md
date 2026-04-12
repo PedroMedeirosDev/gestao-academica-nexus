@@ -1,6 +1,6 @@
 # Enrollment in Nexus — secretariat overview
 
-> **Manual version:** 0.1 (aligned with `docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md` and `docs/student-flow.spec.md` §7–§8, §19). Update when the real UI ships.
+> **Manual version:** 0.2 (aligned with `matricula-campos-edicoes-pos-ativa.spec.md`, `student-flow.spec.md` §7–§8, §19, `docs/specs/financeiro/finance.spec.md`). Update when the real UI ships.
 
 ---
 
@@ -21,6 +21,12 @@ Active       →  Cancelled (void installments)
 
 **Example copy:**  
 *“The enrollment is still in **Reservation** — I can change grade and plan with no charges yet. When I click **Confirm**, it becomes **Active** and installments are generated once.”*
+
+---
+
+## Installments and activation
+
+**Installment rows** are persisted when the enrollment moves from **Reservation** to **Active** (not while it is only a draft). The UI should show a **preview** table before you confirm. After **Active**, changing **class only** keeps installments; changing **grade** or **education level** cancels and regenerates them, again with preview + strong confirmation. Details: `docs/specs/financeiro/finance.spec.md`.
 
 ---
 

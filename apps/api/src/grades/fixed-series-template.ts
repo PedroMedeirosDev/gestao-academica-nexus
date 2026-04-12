@@ -1,0 +1,49 @@
+import { BadRequestException } from '@nestjs/common';
+import { normalizeCatalogLabel } from './normalize-catalog-label';
+
+export type FixedSeriesRow = { label: string; sortOrder: number };
+
+/** Interpreta `fixedSeriesTemplate` vindo do Prisma (JSON). */
+export function parseFixedSeriesTemplate(raw: unknown): FixedSeriesRow[] | null {
+  if (raw === null || raw === undefined) return null;
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  const rows: FixedSeriesRow[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') return null;
+    const o = item as Record<string, unknown>;
+    if (typeof o.label !== 'string' || typeof o.sortOrder !== 'number') {
+      return null;
+    }
+    rows.push({ label: o.label, sortOrder: o.sortOrder });
+  }
+  return rows;
+}
+
+/** Garante rótulos normalizados únicos e `sortOrder` único no roteiro. */
+export function validateNoDuplicateLabelsAndOrders(rows: FixedSeriesRow[]): void {
+  const seenLabels = new Set<string>();
+  const seenOrders = new Set<number>();
+  for (const row of rows) {
+    const nl = normalizeCatalogLabel(row.label);
+    if (seenLabels.has(nl)) {
+      throw new BadRequestException({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Rótulos duplicados no roteiro de séries fixas.',
+          details: [{ field: 'fixedSeriesTemplate', reason: 'DUPLICATE_LABEL' }],
+        },
+      });
+    }
+    seenLabels.add(nl);
+    if (seenOrders.has(row.sortOrder)) {
+      throw new BadRequestException({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Ordem duplicada no roteiro de séries fixas.',
+          details: [{ field: 'fixedSeriesTemplate', reason: 'DUPLICATE_ORDER' }],
+        },
+      });
+    }
+    seenOrders.add(row.sortOrder);
+  }
+}

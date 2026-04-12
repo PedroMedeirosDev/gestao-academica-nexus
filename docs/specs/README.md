@@ -1,6 +1,6 @@
 # Spec program & learning alignment
 
-This folder is the **working home** for area specs. Today, most **behavioral** rules still live in one place: `docs/student-flow.spec.md` (plus `docs/domain.md` for entities and `docs/especificacao-stack.md` for technology). The subfolders (`catalogo/`, `alunos-e-responsaveis/`, `matricula/`, `financeiro/`, `ia/`) hold **additional or extracted** specs as we deepen them—without contradicting the canonical sections below. **Help chat (RAG)** corpus lives in `docs/manuals/` (versioned), not in gitignored `learning/`.
+This folder is the **working home** for area specs. Today, most **behavioral** rules still live in one place: `docs/student-flow.spec.md` (plus `docs/domain.md` for entities and `docs/especificacao-stack.md` for technology). The subfolders (`catalogo/`, `alunos-e-responsaveis/`, `matricula/`, `financeiro/`, `platform/`, `ia/`) hold **additional or extracted** specs as we deepen them—without contradicting the canonical sections below. **Help chat (RAG)** corpus lives in `docs/manuals/` (versioned), not in gitignored `learning/`.
 
 ---
 
@@ -26,12 +26,15 @@ This folder is the **working home** for area specs. Today, most **behavioral** r
 | Stack | `docs/especificacao-stack.md` | Nest, Prisma, Postgres, Next, Docker |
 | Student search, draft, identity, form, guardians | `docs/student-flow.spec.md` | §1–§6; field catalog `alunos-e-responsaveis/campos-aluno-e-responsavel.spec.md` |
 | Enrollment structure, status, class, cancellation | | §7–§8, §12–§15 |
-| Enrollment fields, post-Active edits, address “mora com” | `docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md` | PT-BR; links from §6–§8, §19 |
+| Enrollment fields, post-Active edits, address “mora com”, código legível | `docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md` | PT-BR; links from §6–§8, §19 |
 | Academic results / progression | | §9–§11 (deferred where marked) |
 | System-wide UX (auto-save, destructive confirm) | | §16 |
-| Catalog (year, grade, curriculum, turma) | | §17 |
+| Catalog (ano, nível, série, disciplinas, currículo, turma) | `docs/specs/catalogo/catalog.spec.md` | PT-BR; §17 do monólito aponta para cá |
+| Seeds / norma externa MG 2026 | `docs/specs/catalogo/referencia-matriz-seemg-2026.md` | Como mapear Resolução SEE para `Disciplina` + currículo |
 | Access (MVP secretariat only) | | §18 |
-| Payment plans & installments | | §19 |
+| Payment plans & installments (detalhe) | `docs/specs/financeiro/finance.spec.md` | PT-BR; §19 monólito + regeração |
+| HTTP / erros / paginação / idempotência | `docs/specs/platform/api.spec.md` | PT-BR |
+| UI secretaria (rotas mínimas, fluxos) | `docs/specs/platform/ui-secretaria.spec.md` | PT-BR |
 | Help chat (RAG on secretariat manuals) | `docs/specs/ia/chat-ajuda-rag.spec.md` | Corpus: `docs/manuals/pt` + `en` |
 
 ---
@@ -42,12 +45,12 @@ Specs are **done enough to start coding** when every **MVP user journey** has: P
 
 | Area | Folder | Status | What’s strong today | What to add next (spec debt) |
 |------|--------|--------|---------------------|------------------------------|
-| **Catalog** | `catalogo/` | **Thin in monolith** | §17 + `domain.md` | CRUD flows per entity; constraints (delete year with data, rename grade); **editing grade curriculum** when reservations/actives exist; ordering of disciplines; education level vs grade if modeled separately |
-| **Students & guardians** | `alunos-e-responsaveis/` | **Strong** | §2–§6, guardian link rules; `campos-aluno-e-responsavel.spec.md` (PT — field matrix, age config) | Optional: import/bulk (if ever in scope); document upload retention; occurrence logging tied to §`domain` Occurrence |
-| **Enrollment** | `matricula/` | **Strong** | §7–§15, §8 | Explicit **enrollment code** generation/uniqueness; duplicate-enrollment rule edge cases; read-only views; optional API-oriented acceptance criteria |
-| **Finance** | `financeiro/` | **Good** | §19 | Installment **states** (open / cancelled / paid-if-ever); **rounding** per installment; timezone/date-only rules; preview totals before Active |
-| **API & errors** | *(no folder yet)* | **Missing** | — | New doc when ready: REST shape, validation errors, idempotency keys, pagination for search—**after** domain specs stabilize |
-| **UI / Next** | *(no folder yet)* | **Missing** | Implied in monolith | Routes, layouts, stepper vs tabs (`decisions.md`); can stay thin until API spec exists |
+| **Catalog** | `catalogo/` | **Strong (MVP slice)** | `catalog.spec.md` — ano, nível, série, disciplina, currículo, turma, bloqueios de exclusão | Clonagem de ano; campus múltiplo; política fina se remoção de disciplina do currículo com **só** matrículas Canceladas deve ser permitida (hoje: bloqueio se existir **Ativa** — ver spec) |
+| **Students & guardians** | `alunos-e-responsaveis/` | **Strong** | §2–§6, guardian link rules; `campos-aluno-e-responsavel.spec.md` (PT — field matrix, age config) | Optional: import/bulk (if ever in scope); document upload retention; occurrence logging tied to `domain.md` Occurrence |
+| **Enrollment** | `matricula/` | **Strong** | §7–§15, §8; `matricula-campos-edicoes-pos-ativa.spec.md` inclui §5 código legível | Matriz de testes Given/When/Then; edge cases raros de duplicidade (concorrência duas abas) |
+| **Finance** | `financeiro/` | **Strong (MVP)** | `finance.spec.md` — estados OPEN/CANCELLED, arredondamento, DATE, pré-visualização, idempotência | Estado **PAID** quando houver conciliação; ajuste fino de “total fechado” vs arredondamento por parcela |
+| **API & errors** | `platform/` | **Good (base)** | `api.spec.md` — envelope, HTTP, paginação, Idempotency-Key, lista inicial de `code`s | OpenAPI gerado a partir do Nest; auth detalhada; webhooks (fora do MVP) |
+| **UI / Next** | `platform/` | **Good (thin)** | `ui-secretaria.spec.md` — rotas lógicas, stepper, confirmações | Design system; componentes; testes E2E |
 
 When an area file is added (e.g. `catalogo/catalog.spec.md`), put at the top: **“Extends `student-flow.spec.md` §17; supersedes nothing unless explicitly stated.”**
 
@@ -72,9 +75,9 @@ Use the same **order** for learning and for closing spec debt: each phase has a 
 
 ## Suggested next spec sessions (concrete)
 
-1. **`catalogo/catalog.spec.md`** — First new area file: lifecycle of academic year → grade → curriculum → class; destructive confirmations for catalog deletes (§16 already requires this generically).
-2. **`financeiro/finance.spec.md`** — Enumerate installment states, rounding, and “edit after Active” if any.
-3. **`api.spec.md`** (under `docs/` or `docs/specs/platform/`) — When Nest scaffold exists: resource list + error envelope.
+1. **OpenAPI / lista de endpoints** — Gerar a partir do scaffold Nest e manter alinhado a `platform/api.spec.md`.
+2. **Cenários de teste** — Extrair Given/When/Then de matrícula + financeiro para pasta `docs/specs/quality/` ou arquivo único (quando existir runner de testes).
+3. **Manuais RAG** — Expandir `docs/manuals/pt|en` (catálogo, financeiro) conforme `chat-ajuda-rag.spec.md`; manter paridade PT/EN.
 
 ---
 

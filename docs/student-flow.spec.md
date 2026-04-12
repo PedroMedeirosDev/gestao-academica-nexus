@@ -124,6 +124,7 @@ Every **Student** and every **Guardian** MUST resolve to exactly **one** identit
 * **Either** Track A: **CPF** **or** Track B: **identity document** (type + number, per §5)
 * **RG** remains allowed for Brazilian students when the product still collects it alongside CPF, or as national secondary ID—exact combination with Track A/B is implementation-defined, but **uniqueness** always follows §5 (CPF **or** foreign-doc composite, not both as dual primary keys).
 * Image Authorization
+* **Profile photo (optional):** an authenticated **Secretariat** user **may** upload, replace, or clear the student’s portrait photo from the student record; absence of a photo MUST NOT block **Completed** registration. Storage (object storage URL, max size, formats) is implementation-defined.
 * **Sex, nationality** (and other principal fields per linked spec); **marital status** for the **student** only if age ≥ configured `minAgeStudentMaritalStatus` (default **18**, institution-configurable—see linked spec); **no** student “education level” (grau de instrução) in MVP
 
 #### Rules
@@ -205,6 +206,7 @@ Each enrollment contains:
 * Enrollment Type
 * Status
 * Academic Result
+* Optional **human-readable enrollment code** for lists and support (generation and uniqueness: `docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md` §5 — Portuguese)
 
 **Field-level detail, post-Active edits (class vs grade), and finance regeneration:** `docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md` (Portuguese — BR).
 
@@ -374,11 +376,12 @@ Each regular class must contain at minimum:
 
 ## 17. Academic Catalog (MVP)
 
+**Authoritative CRUD, uniqueness, delete-blocking, and curriculum edit rules:** `docs/specs/catalogo/catalog.spec.md` (Portuguese — BR): academic year, education level, grade (série), master disciplines, grade curriculum, regular class.
+
 ### Academic Year
 
 * Identifies the operational school year (e.g. 2026)
 * Scopes grades, grade curricula, and regular classes
-* Detailed CRUD rules: `docs/specs/catalogo/catalog.spec.md` (Academic Year slice)
 
 ### Grade (Série)
 
@@ -402,8 +405,13 @@ Each regular class must contain at minimum:
 ## 18. Access Control (MVP)
 
 * Only the **Secretariat** role exists in MVP
+* **Authentication:** the secretariat UI MUST **not** be usable without **login**. After successful authentication, the user is treated as **Secretariat** for authorization (MVP: single role; no self-service parent portal).
+* **Authorization:** catalog, student, enrollment, class, and finance endpoints MUST verify an authenticated secretariat session (or equivalent server-side principal) on **every** mutating and sensitive read request—never rely on UI hiding alone.
 * Secretariat may perform all catalog, student, enrollment, class assignment, and (if enabled) installment operations
+* **Student portrait photo:** secretariat **may** edit (upload / replace / remove) the optional student photo per §6 Step 1; not required for workflows.
 * Additional roles are out of scope until specified
+
+**Implementation note:** **Nest JWT** + guards na API (`docs/decisions.md`, `docs/specs/platform/api.spec.md`). Transporte Bearer ou cookie httpOnly conforme monorepo.
 
 ---
 
@@ -456,3 +464,5 @@ Configurable template managed by secretaria, including at minimum:
 ### Financial responsibility
 
 * Logical debtor remains the **Financial Responsibility** guardian tied to the student/enrollment; MVP does not require new guardian fields beyond existing rules
+
+**Installment states, rounding, DATE rules, preview endpoints, and finance error codes:** `docs/specs/financeiro/finance.spec.md` (Portuguese — BR).

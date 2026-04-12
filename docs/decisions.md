@@ -71,6 +71,40 @@ Only **secretariat** users in MVP; no parent/teacher login surface required to s
 
 ---
 
+## Platform users: single `User` table + `UserRole`
+
+### Decision
+
+- All **platform logins** (who signs in to the Nest/Next stack) live in one table: **`User`**, with discriminant **`role: UserRole`**.
+- **MVP:** `UserRole` contains **`SECRETARIA`** only. Additional roles extend the enum and guards later—**no** separate `SecretariatUser` table long term.
+
+### Rationale
+
+- Matches “one user, one profile today; same person table when new profiles exist,” without migrating identities across tables.
+
+### Related
+
+- Prisma migration renames legacy `SecretariatUser` → `User` and adds `role` with default `SECRETARIA` (valor do enum renomeado de `SECRETARIAT` em migration posterior).
+
+---
+
+## Catálogo: séries fixas (trilha principal) vs séries livres (trilhas secundárias)
+
+### Decision
+
+- Cada **`EducationLevel`** tem **`gradeCreationMode`**: **`FIXED_SERIES`** (só pares `(rótulo, sortOrder)` do JSON **`fixedSeriesTemplate`**) ou **`FREE`** (criação livre de `Grade`, ex.: oferta de esportes).
+- Trilhas alinhadas à matriz SEE / norma principal usam **`FIXED_SERIES`** com roteiro explícito; ofertas ad hoc usam **`FREE`** (default).
+
+### Rationale
+
+- Evita “inventar” 7º ano fora da matriz no Fundamental estadual, mantendo flexibilidade onde o produto não fixa séries (`docs/specs/catalogo/referencia-matriz-seemg-2026.md` alimenta o conteúdo do template, não a API sozinha).
+
+### Related
+
+- `POST /grades` valida contra o nível; `POST /education-levels` aceita o template ao criar o nível.
+
+---
+
 ## Enrollment status: minimal state machine (MVP)
 
 ### Decision
@@ -281,6 +315,38 @@ Expose **institution-configurable** integers (env or settings table in a later p
 ### Related
 
 - `docs/specs/alunos-e-responsaveis/campos-aluno-e-responsavel.spec.md` §1
+
+---
+
+## MVP: login da secretaria (acesso à UI)
+
+### Context
+
+`student-flow.spec.md` §18 requires **no anonymous access** to secretariat features; only **Secretariat** exists as a role in MVP.
+
+### Decision
+
+- Ship a **login screen** before catalog/student/enrollment flows.
+- After authentication, the user is authorized as **Secretariat** (single role until multi-role exists).
+
+### Rationale
+
+Portfolio and real deployments need a clear boundary between public internet and student PII / finance data.
+
+### Implementation (**fechado**)
+
+- **NestJS + JWT** emitido pela API após login (credenciais mínimas no módulo de auth).
+- O **Next** envia o token nas chamadas (`Authorization: Bearer`) **ou** usa cookie **httpOnly** servido pelo Nest, conforme desenho do monorepo (CORS e origem documentados no scaffold).
+- **Supabase Auth** fica fora do caminho crítico do MVP (Postgres no Supabase = banco relacional).
+
+### Docker (aprendizado / vaga)
+
+- **Docker Compose** com Postgres (e o que mais precisar) pode entrar **no fim do ciclo** para testes locais e requisito de vagas; não bloqueia enquanto o dev usar só o banco na nuvem (`docs/especificacao-stack.md`).
+
+### Related
+
+- `docs/student-flow.spec.md` §18
+- `docs/specs/platform/ui-secretaria.spec.md` (`/login`)
 
 ---
 

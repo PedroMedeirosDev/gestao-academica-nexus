@@ -2,7 +2,8 @@
 
 ## Access (MVP)
 
-- **Secretariat**: single role for MVP; creates and maintains students, catalog, enrollments, class assignments, and (if enabled) installment generation
+- **Secretariat**: single **authorization profile** for MVP; creates and maintains students, catalog, enrollments, class assignments, and (if enabled) installment generation
+- **User (platform):** one row per login identity in the **`User`** table; **`User.role`** selects the profile (`UserRole` enum). MVP has only **`SECRETARIA`**; future profiles reuse the same table with new enum values
 
 ---
 

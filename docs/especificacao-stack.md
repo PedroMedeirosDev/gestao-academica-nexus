@@ -43,6 +43,13 @@ Este documento fixa as **tecnologias acordadas** para implementação. Conversas
 
 - **Docker Compose** (ou equivalente) para subir **PostgreSQL** em desenvolvimento com o mesmo major/minor preferencialmente alinhado ao ambiente de deploy futuro.
 
+### Quando usar Docker neste projeto
+
+- **Você já usa Postgres na nuvem (ex.: Supabase)** para desenvolver: Docker do banco é **opcional** — o stack segue válido; Compose entra se quiser um Postgres **local** para testes offline, CI sem custo de nuvem, ou para espelhar a **versão major** do Postgres igual à produção.
+- **Quando o monorepo `api`/`web` existir:** é comum ter um `docker-compose.yml` na raiz (ou em `infra/`) que sobe só o Postgres; o Nest/Next continuam rodando **fora** do container no dia a dia, apontando `DATABASE_URL` para `localhost`.
+- **Disco na sua máquina:** sim — dados do Postgres em Docker ficam em **volume** (ou bind mount) e **ocupam espaço real** em disco (tipicamente dezenas a centenas de MB em dev vazio; cresce com dados e backups locais). Remover o container **sem** apagar o volume costuma **manter** os dados; apagar o volume apaga o banco local.
+- **Aprendizado / requisito de vaga:** é razoável voltar ao Docker **no final do ciclo** para subir Postgres (e eventualmente a API) só em ambiente de **testes** ou demo offline — ver `docs/decisions.md` (MVP login / Docker).
+
 Variáveis sensíveis via `.env` (nunca commitadas); exemplo documentado em `.env.example` quando o scaffold existir.
 
 ---

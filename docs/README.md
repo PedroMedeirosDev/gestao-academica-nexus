@@ -69,4 +69,7 @@ Suggested order: solid **TypeScript** and **domain modeling** → **Prisma schem
 - `docs/objetivos-tecnicos-portfolio.md` — technical demonstration goals (generic, no employer names)
 - `docs/especificacao-stack.md` — locked technologies (NestJS, Prisma, PostgreSQL, Next.js, Docker, TS)
 - `docs/specs/README.md` — **spec program**: process, coverage matrix, gaps, and **learning phases** aligned with implementation order
+- `docs/specs/catalogo/catalog.spec.md` — catálogo acadêmico (ano, nível, série, disciplinas, currículo, turma)
+- `docs/specs/financeiro/finance.spec.md` — parcelas, arredondamento, pré-visualização, idempotência
+- `docs/specs/platform/api.spec.md` — convenções HTTP; `docs/specs/platform/ui-secretaria.spec.md` — rotas mínimas da UI
 - `docs/student-flow.spec.md` — behavioral rules (student, enrollment, class, finance subset); dependency/recovery **deferred**

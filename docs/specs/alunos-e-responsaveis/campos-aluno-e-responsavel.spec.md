@@ -39,6 +39,7 @@ Configuração por **instância** da aplicação (ou variáveis de ambiente na p
 
 ### 2.2 Opcionais (aluno)
 
+- **Foto do aluno (retrato):** totalmente **opcional**; o perfil **secretaria** **pode** enviar, trocar ou apagar a foto na ficha do aluno. **Não** é requisito para marcar o cadastro como completo (`student-flow.spec.md` §6 e §18).
 - **RG** (ou ID secundário nacional), quando Track A e política da escola exigirem registro junto ao CPF
 - **Naturalidade** (cidade/UF ou lista + busca, alinhado ao legado)
 - **E-mail** e **telefone** do aluno — **recomendados**; podem ficar vazios para menor se a escola usar só contato dos responsáveis (validação: se aluno ≥ `majorityAge`, recomenda-se **pelo menos um** meio de contato próprio ou declarado)

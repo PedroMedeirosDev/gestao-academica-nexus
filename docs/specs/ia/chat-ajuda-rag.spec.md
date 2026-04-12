@@ -36,7 +36,8 @@ Oferecer um **chat de ajuda** na UI da secretaria em que a usuária faz pergunta
 
 ## Entregáveis antes de implementar
 
-- [x] Manuais mínimos **iniciados** em `docs/manuals/pt/` e `docs/manuals/en/` (`matricula-visao-geral.md`, `enrollment-overview.md`). Expandir com catálogo, aluno, financeiro quando os specs estiverem prontos.  
+- [x] Manuais mínimos **iniciados** em `docs/manuals/pt/` e `docs/manuals/en/` (`matricula-visao-geral.md`, `enrollment-overview.md`), incluindo trecho sobre **parcelas/pré-visualização** alinhado a `docs/specs/financeiro/finance.spec.md`.  
+- [ ] Manuais adicionais (catálogo, aluno, financeiro) quando as áreas estiverem estáveis — ver `docs/manuals/leiame.md`.  
 - [ ] Smoke de layout **mobile** (320px) nas telas que expõem o chat (ver `docs/especificacao-stack.md`).
 - [ ] ADR: provedor de embeddings/LLM, pgvector vs Qdrant, retenção de logs.
 - [ ] Testes manuais ou automáticos com perguntas canón (“como matricular”, “cancelar matrícula”) com respostas esperadas aproximadas.

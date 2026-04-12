@@ -1,0 +1,21 @@
+{
+  "name": "gestao-academica-nexus",
+  "private": true,
+  "description": "Academic management — monorepo: specs, Prisma, apps/api (Nest), apps/web (Next)",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "db:validate": "prisma validate",
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev",
+    "dev:api": "npm run start:dev --workspace=api",
+    "build:api": "npm run build --workspace=api"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  }
+}

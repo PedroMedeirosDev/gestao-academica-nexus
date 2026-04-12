@@ -15,14 +15,17 @@ Cada **matrícula** (enrollment), além do vínculo com o **aluno**, deve expor 
 | **Ano letivo** | Sim | Inteiro, regras em `docs/specs/catalogo/catalog.spec.md` |
 | **Nível de ensino** | Sim | Alinhado ao catálogo e à matrícula |
 | **Série** | Sim | Define currículo base (Grade Curriculum) |
-| **Tipo de matrícula** | Sim | Enum já usado nas regras de duplicidade (§10) |
+| **Tipo de matrícula** | Sim | Enum usado na duplicidade (§10). **MVP:** pelo menos **`REGULAR`**; outros valores (ex.: dependência, bolsa) ficam **fora** até ADR + migração de dados. |
 | **Status** | Sim | Reserva, Ativa ou Cancelada (§8) |
 | **Turma (regular)** | Sim antes de Ativar | Exatamente uma turma da mesma série/ano (§13) |
 | **Resultado acadêmico** | Sim no modelo | MVP: só “Em andamento” (§9) |
 | **Referência ao plano de pagamento** | Conforme financeiro | Em **Reserva:** pode apontar para modelo editável; ao **Ativar:** **snapshot** nas parcelas (§19) |
 | **Disciplinas materializadas** | Após Ativa | Lista = Grade Curriculum da série/ano na ativação; alteração de série exige rematerialização (§2.2) |
+| **Código legível** | Recomendado | Ver §5 — identificação humana para listas e suporte; imutável após criado |
 
 Campos **fora** do MVP neste documento: mudança de **ano letivo** em matrícula já Ativa (ver §2.3).
+
+**Pré-visualização de parcelas, estados e arredondamento:** `docs/specs/financeiro/finance.spec.md`. **HTTP e códigos de erro:** `docs/specs/platform/api.spec.md`.
 
 ---
 
@@ -93,11 +96,21 @@ Em **ambos** os casos, se a opção “mora com…” for **desligada** depois, 
 
 ---
 
-## 5. Complementos recomendados (não bloqueantes)
+## 5. Código legível da matrícula (opcional no MVP, recomendado)
+
+- **Propósito:** atendimento e listagens sem depender só do UUID interno.
+- **Formato sugerido:** prefixo estável + ano letivo + sequencial com zeros à esquerda (ex.: `MAT-2026-00001`). Outro padrão é aceite se documentado no repositório de implementação.
+- **Unicidade:** escolher **uma** política e testar: (A) único **por ano letivo** na instituição, ou (B) único **na instituição** independentemente do ano.
+- **Momento:** gerar na **primeira** persistência da matrícula em **Reserva**; **não** alterar depois.
+- **Se omitido no primeiro corte de código:** telas usam apenas o `id`; demais regras de duplicidade e financeiro **não** dependem deste campo.
+
+---
+
+## 6. Complementos recomendados (não bloqueantes)
 
 - **Histórico:** registar evento de “série alterada em matrícula Ativa” e “turma alterada” para auditoria (Occurrence ou log equivalente — `domain.md`).
-- **Pré-visualização** de parcelas **antes** de confirmar mudança de série (já citado em §2.2).
-- **API:** códigos de erro distintos para violação de duplicidade, série sem plano padrão, responsável sem endereço.
+- **Pré-visualização** de parcelas **antes** de confirmar mudança de série (§2.2 e `docs/specs/financeiro/finance.spec.md` §6).
+- **API:** códigos estáveis e envelope em `docs/specs/platform/api.spec.md`; erros `ENROLLMENT_*`, `FINANCE_*`, catálogo conforme os specs de área.
 
 ---
 

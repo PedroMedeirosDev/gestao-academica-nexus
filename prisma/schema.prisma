@@ -1,0 +1,422 @@
+// Nexus — Gestão Acadêmica
+// Alinhado a: docs/domain.md, docs/student-flow.spec.md,
+// docs/specs/catalogo/catalog.spec.md, docs/specs/financeiro/finance.spec.md,
+// docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md,
+// docs/specs/alunos-e-responsaveis/campos-aluno-e-responsavel.spec.md
+//
+// Regras que exigem índice único parcial (PostgreSQL), não expressáveis só com Prisma:
+// - Duplicidade de matrícula: no máximo uma matrícula por (aluno, série, tipo) em
+//   status RESERVATION ou ACTIVE (ignorar CANCELLED) — ver student-flow §10.
+//   Implementar com migration SQL: CREATE UNIQUE INDEX ... WHERE status IN (...).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Plataforma: usuários (login API/UI). Um registro por pessoa; `role` = perfil. ---
+// MVP: enum com só SECRETARIA; novos valores quando existir outro perfil (`docs/decisions.md`).
+
+enum UserRole {
+  SECRETARIA
+}
+
+/// Séries (`Grade`) por nível: trilha SEE principal = rótulos fixos; esportes/extras = livre.
+enum GradeCreationMode {
+  FREE
+  FIXED_SERIES
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(SECRETARIA)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// --- Configuração da instituição (singleton lógico: uma linha) ---
+
+model InstitutionSettings {
+  id                           String @id @default("default")
+  majorityAge                  Int    @default(18)
+  minAgeStudentMaritalStatus   Int    @default(18)
+  timezone                     String @default("America/Sao_Paulo")
+  updatedAt                    DateTime @updatedAt
+}
+
+// --- Catálogo acadêmico ---
+
+model AcademicYear {
+  id        String   @id @default(cuid())
+  year      Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  grades         Grade[]
+  paymentPlans   PaymentPlan[]
+}
+
+model EducationLevel {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  sortOrder Int      @default(0)
+  /// `FIXED_SERIES`: só é permitido criar `Grade` com par (rótulo, ordem) presente em `fixedSeriesTemplate`.
+  gradeCreationMode GradeCreationMode @default(FREE)
+  /// JSON: `[{ "label": "1º ano", "sortOrder": 1 }, ...]` quando `gradeCreationMode = FIXED_SERIES`.
+  fixedSeriesTemplate Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  grades Grade[]
+}
+
+/// Série (cohort): combinação ano letivo + nível + rótulo (ex.: "7º ano").
+model Grade {
+  id               String   @id @default(cuid())
+  academicYearId   String
+  educationLevelId String
+  label            String
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  academicYear   AcademicYear   @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  educationLevel EducationLevel @relation(fields: [educationLevelId], references: [id], onDelete: Restrict)
+
+  curriculum       GradeCurriculum[]
+  classes          SchoolClass[]
+  enrollments      Enrollment[]
+  defaultPayPlans  PaymentPlan[]     @relation("DefaultPlanForGrade")
+
+  @@unique([academicYearId, educationLevelId, label])
+  @@index([academicYearId])
+}
+
+model Discipline {
+  id        String   @id @default(cuid())
+  name      String
+  code      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  curriculum          GradeCurriculum[]
+  enrollmentSubjects EnrollmentSubject[]
+  occurrences        Occurrence[]
+
+  @@index([name])
+}
+
+model GradeCurriculum {
+  id           String @id @default(cuid())
+  gradeId      String
+  disciplineId String
+  sortOrder    Int
+
+  grade      Grade      @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  discipline Discipline @relation(fields: [disciplineId], references: [id], onDelete: Restrict)
+
+  @@unique([gradeId, disciplineId])
+  @@unique([gradeId, sortOrder])
+}
+
+/// Turma regular (enturmação primária).
+model SchoolClass {
+  id        String   @id @default(cuid())
+  gradeId   String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  grade       Grade        @relation(fields: [gradeId], references: [id], onDelete: Restrict)
+  enrollments Enrollment[]
+
+  @@unique([gradeId, name])
+}
+
+// --- Pessoas: aluno e responsável ---
+
+enum IdentityTrack {
+  CPF
+  FOREIGN_DOCUMENT
+}
+
+enum StudentLifecycleStatus {
+  DRAFT
+  COMPLETED
+}
+
+enum Sex {
+  FEMALE
+  MALE
+  OTHER
+  PREFER_NOT_SAY
+}
+
+/// Chave legal estável para unicidade: Track A = "CPF:" + dígitos; Track B = "DOC:" + tipo + ":" + número normalizado.
+model Student {
+  id                         String                   @id @default(cuid())
+  lifecycleStatus            StudentLifecycleStatus   @default(DRAFT)
+  legalIdentityKey          String                   @unique
+  identityTrack             IdentityTrack
+  /// Apenas Track A; normalizado (só dígitos) quando preenchido.
+  cpf                       String?                  @unique
+  identityDocumentType      String?
+  identityDocumentNumber    String?
+  identityIssuingCountry    String?
+  name                      String
+  birthDate                 DateTime                 @db.Date
+  sex                       Sex?
+  nationality               String?
+  rg                        String?
+  email                     String?
+  phone                     String?
+  naturalCity               String?
+  naturalState              String?
+  imageUsageAuthorized      Boolean                  @default(false)
+  /// Chave/path no object storage (ex.: Supabase Storage); URL pública ou assinada montada no backend.
+  portraitPhotoObjectKey    String?
+  maritalStatus             String?
+  observations              String?
+
+  /// "Mora com responsável": referência ao vínculo que fornece endereço (estratégia B — referência).
+  addressSourceLinkId String? @unique
+
+  street       String?
+  number       String?
+  complement   String?
+  neighborhood String?
+  city         String?
+  state        String?
+  zipCode      String?
+
+  healthNotes   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  guardianLinks       StudentGuardianLink[] @relation("StudentGuardians")
+  addressSourceLink   StudentGuardianLink?  @relation("AddressSourceForStudent", fields: [addressSourceLinkId], references: [id], onDelete: SetNull)
+  enrollments         Enrollment[]
+  occurrences         Occurrence[]
+  documents           StudentDocument[]
+
+  @@index([name])
+  @@index([lifecycleStatus])
+}
+
+model Guardian {
+  id                       String        @id @default(cuid())
+  legalIdentityKey         String        @unique
+  identityTrack            IdentityTrack
+  cpf                      String?       @unique
+  identityDocumentType     String?
+  identityDocumentNumber   String?
+  identityIssuingCountry    String?
+  name                     String
+  birthDate                DateTime?     @db.Date
+  deceased                 Boolean       @default(false)
+  email                    String
+  phone                    String
+  profession               String?
+  maritalStatus            String?
+  educationLevelNote       String?
+  street                   String
+  number                   String
+  complement               String?
+  neighborhood             String
+  city                     String
+  state                    String
+  zipCode                  String
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+
+  studentLinks StudentGuardianLink[] @relation("GuardianStudents")
+
+  @@index([name])
+}
+
+enum RelationshipType {
+  FATHER
+  MOTHER
+  STEPFATHER
+  STEPMOTHER
+  GUARDIAN
+  OTHER
+}
+
+model StudentGuardianLink {
+  id                     String           @id @default(cuid())
+  studentId              String
+  guardianId             String
+  relationshipType       RelationshipType
+  isFinancialResponsible Boolean          @default(false)
+  displayOrder           Int              @default(0)
+  isAddressSource        Boolean          @default(false)
+
+  student Student @relation("StudentGuardians", fields: [studentId], references: [id], onDelete: Cascade)
+  guardian Guardian @relation("GuardianStudents", fields: [guardianId], references: [id], onDelete: Restrict)
+
+  /// Quando este vínculo é a fonte de endereço do aluno.
+  studentUsingAddressSource Student? @relation("AddressSourceForStudent")
+
+  @@index([studentId])
+  @@index([guardianId])
+  @@unique([studentId, guardianId])
+}
+
+model StudentDocument {
+  id         String   @id @default(cuid())
+  studentId  String
+  fileName   String
+  mimeType   String
+  storageUrl String?
+  createdAt  DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+// --- Matrícula e financeiro ---
+
+enum EnrollmentType {
+  REGULAR
+}
+
+enum EnrollmentStatus {
+  RESERVATION
+  ACTIVE
+  CANCELLED
+}
+
+enum AcademicResult {
+  IN_PROGRESS
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED_BRL
+}
+
+enum DueDateStrategy {
+  SINGLE_DATE
+  FIXED_DAY_OF_MONTH
+  MANUAL
+}
+
+enum InstallmentStatus {
+  OPEN
+  CANCELLED
+}
+
+model PaymentPlan {
+  id                 String           @id @default(cuid())
+  name               String?
+  academicYearId     String?
+  gradeId            String?
+  baseAmount         Decimal          @db.Decimal(12, 2)
+  discountType       DiscountType?
+  discountValue      Decimal?         @db.Decimal(12, 4)
+  installmentCount   Int
+  dueDateStrategy    DueDateStrategy
+  /// Quando estratégia única data ou primeiro vencimento do parcelado.
+  firstDueDate       DateTime?        @db.Date
+  /// Dia do mês (1–31) para parcelas com FIXED_DAY_OF_MONTH.
+  fixedDayOfMonth    Int?
+  isActive           Boolean          @default(true)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  academicYear AcademicYear? @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
+  grade        Grade?        @relation("DefaultPlanForGrade", fields: [gradeId], references: [id], onDelete: SetNull)
+  enrollments  Enrollment[]
+
+  @@index([academicYearId])
+  @@index([gradeId])
+}
+
+model Enrollment {
+  id                 String            @id @default(cuid())
+  /// Código legível opcional (ex.: MAT-2026-00001) — matricula spec §5.
+  publicCode         String?           @unique
+  studentId          String
+  gradeId            String
+  schoolClassId      String?
+  enrollmentType     EnrollmentType    @default(REGULAR)
+  status             EnrollmentStatus @default(RESERVATION)
+  academicResult     AcademicResult    @default(IN_PROGRESS)
+  selectedPaymentPlanId String?
+
+  /// Momento da primeira ativação (Reserva → Ativa).
+  activatedAt        DateTime?
+  /// Snapshot do plano no momento da geração de parcelas (JSON flexível + auditoria).
+  planSnapshot       Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student              Student              @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  grade                Grade                @relation(fields: [gradeId], references: [id], onDelete: Restrict)
+  schoolClass          SchoolClass?         @relation(fields: [schoolClassId], references: [id], onDelete: SetNull)
+  selectedPaymentPlan  PaymentPlan?         @relation(fields: [selectedPaymentPlanId], references: [id], onDelete: SetNull)
+  subjects             EnrollmentSubject[]
+  installments         Installment[]
+  occurrences          Occurrence[]
+
+  @@index([studentId])
+  @@index([gradeId])
+  @@index([status])
+}
+
+model EnrollmentSubject {
+  id           String @id @default(cuid())
+  enrollmentId String
+  disciplineId String
+  sortOrder    Int
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  discipline Discipline @relation(fields: [disciplineId], references: [id], onDelete: Restrict)
+
+  @@unique([enrollmentId, disciplineId])
+  @@unique([enrollmentId, sortOrder])
+}
+
+model Installment {
+  id             String            @id @default(cuid())
+  enrollmentId   String
+  sequenceNumber Int
+  dueDate        DateTime          @db.Date
+  amount         Decimal           @db.Decimal(12, 2)
+  status         InstallmentStatus @default(OPEN)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, sequenceNumber])
+  @@index([enrollmentId])
+  @@index([status])
+}
+
+model Occurrence {
+  id           String   @id @default(cuid())
+  studentId    String
+  enrollmentId String?
+  disciplineId String?
+  title        String
+  body         String?
+  occurredAt   DateTime @default(now())
+
+  student    Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  enrollment Enrollment? @relation(fields: [enrollmentId], references: [id], onDelete: SetNull)
+  discipline Discipline? @relation(fields: [disciplineId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([enrollmentId])
+}

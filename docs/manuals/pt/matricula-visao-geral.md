@@ -1,6 +1,6 @@
 # Matrícula no Nexus — visão geral para a secretaria
 
-> **Versão do manual:** 0.1 (alinhado aos specs em `docs/specs/matricula/matricula-campos-edicoes-pos-ativa.spec.md` e `docs/student-flow.spec.md` §7–§8, §19). Ajustar este texto quando a tela real existir.
+> **Versão do manual:** 0.2 (alinhado a `matricula-campos-edicoes-pos-ativa.spec.md`, `student-flow.spec.md` §7–§8, §19, `docs/specs/financeiro/finance.spec.md`). Ajustar quando a tela real existir.
 
 ---
 
@@ -21,6 +21,12 @@ Ativa    →  Cancelada (cancelar matrícula já efetivada; cancela parcelas)
 
 **Exemplo (linguagem da secretaria):**  
 *“A matrícula da Ana está em **Reserva** — ainda posso mudar série e plano sem gerar cobrança. Quando clicar em **Efetivar**, passa a **Ativa** e aí o sistema gera as parcelas uma vez.”*
+
+---
+
+## Parcelas e efetivação
+
+As **parcelas** (valores e vencimentos) só são **gravadas** quando a matrícula passa de **Reserva** para **Ativa** — não no simples rascunho. Antes de confirmar, a tela deve mostrar uma **pré-visualização** (tabela) das parcelas; depois de Ativa, alterar **só a turma** não mexe nas parcelas; mudar **série** ou **nível** cancela as parcelas antigas e gera outras, de novo com pré-visualização e confirmação forte. Detalhes: `docs/specs/financeiro/finance.spec.md`.
 
 ---
 
