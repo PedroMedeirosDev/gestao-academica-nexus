@@ -2,7 +2,7 @@
 
 **Fonte de verdade:** `docs/student-flow.spec.md`, `docs/domain.md`, `docs/specs/**`, `docs/decisions.md`.
 
-**Como acompanhar:** os **blocos numerados** repetem-se também nos **To-dos do Cursor** (painel de tarefas). Atualize os dois quando fechar um bloco.
+**Como acompanhar:** os **blocos numerados** repetem-se também nos **To-dos do Cursor** (painel de tarefas). **Os To-dos do Cursor não vão no Git** — ao mudar de máquina, use este ficheiro + `git pull` como referência e reabra/atualize os to-dos no Cursor à mão se precisar.
 
 ---
 
@@ -13,9 +13,10 @@
 | **0** | Fundação (repo, DB, API mínima, auth, `User` + `UserRole`) | **Concluído** |
 | **1** | Plataforma HTTP (erro, listas, idempotência) | **Concluído** (paginação, idempotência base, catálogo de erros) |
 | **2** | Catálogo acadêmico (API + seed) | **Concluído** |
-| **3**–**8** | Alunos → … → RAG | Pendente |
+| **3** | Alunos, responsáveis, vínculos, retrato (API + Supabase Storage) | **Concluído** |
+| **4**–**8** | Matrícula → … → RAG | Pendente |
 
-👉 **Próximo passo sugerido:** **Bloco 3** — API alunos e responsáveis (ou **Bloco 4** matrícula, conforme prioridade).
+👉 **Próximo passo sugerido:** **Bloco 4** — API matrícula (estados, disciplinas, `publicCode`, etc.).
 
 ---
 
@@ -67,15 +68,15 @@
 
 ```
 ================================================================================
- BLOCO 3 — ALUNOS E RESPONSÁVEIS (API)
+ BLOCO 3 — ALUNOS E RESPONSÁVEIS (API) — concluído
 ================================================================================
 ```
 
 | Status | Item | Spec |
 |--------|------|------|
-| [ ] | Aluno: rascunho → completo, identidade, unicidade | `student-flow` §1–§6; `campos-aluno-e-responsavel.spec.md` |
-| [ ] | Vínculos responsável–aluno; “mora com”; reutilizar responsável | `student-flow`; `decisions.md` |
-| [ ] | Foto: upload/replace/clear via Nest + storage | `student-flow`; `api.spec.md` §2.1 |
+| [x] | Aluno: rascunho → completo, identidade, unicidade | `student-flow` §1–§6; `campos-aluno-e-responsavel.spec.md` |
+| [x] | Vínculos responsável–aluno; “mora com”; reutilizar responsável | `student-flow`; `decisions.md` |
+| [x] | Foto: upload/replace/clear via Nest + storage (bucket `student-portraits`, env Supabase na API) | `student-flow`; `api.spec.md` §2.1 |
 
 ---
 
