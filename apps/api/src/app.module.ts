@@ -5,8 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { DisciplinesModule } from './disciplines/disciplines.module';
 import { EducationLevelsModule } from './education-levels/education-levels.module';
 import { GradesModule } from './grades/grades.module';
+import { GuardiansModule } from './guardians/guardians.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { StudentsModule } from './students/students.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { PrismaModule } from './prisma/prisma.module';
     EducationLevelsModule,
     DisciplinesModule,
     GradesModule,
+    GuardiansModule,
+    StudentsModule,
   ],
 })
 export class AppModule {}

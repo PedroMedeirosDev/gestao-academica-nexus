@@ -1,0 +1,11 @@
+---
+description: Idioma das respostas do assistente (obrigatório neste repositório)
+alwaysApply: true
+---
+
+# Idioma (PT-BR)
+
+- **Responda sempre em português do Brasil (pt-BR)** em todas as mensagens ao usuário deste workspace: explicações, listas, commits sugeridos, comentários em PRs e texto de UI quando o assistente propor copy.
+- **Exceções mínimas e explícitas:** identificadores de código, nomes de pacotes npm, URLs, citações literais de spec em inglês, e termos técnicos consagrados sem tradução natural (ex.: *pull request*, *middleware*) — pode manter em inglês entre parênteses se ajudar a clareza.
+- **Não** alterne para inglês “por conveniência” nem resuma só em inglês; se o usuário escrever em outro idioma, ainda assim prefira **pt-BR** na resposta, salvo se o usuário pedir explicitamente outro idioma.
+- **Evite misturar português de Portugal (pt-PT)** no texto que você escreve: prefira **você** (não *tu* / *teu* / *tua*); **usuário** (evite *utilizador* como termo principal); **rode** ou **execute** o comando (evite *corra* no sentido de executar); **arquivo** quando couber (evite *ficheiro*). Mantenha tom uniforme em **pt-BR** do início ao fim da mensagem.

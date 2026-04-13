@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
-import type { ApiErrorEnvelope } from '../types/api-error.types';
+import { businessError } from '../errors/business-error';
 
 function walkErrors(
   errors: ValidationError[],
@@ -26,15 +26,12 @@ export function validationExceptionFactory(
   errors: ValidationError[],
 ): BadRequestException {
   const details = walkErrors(errors);
-  const body: ApiErrorEnvelope = {
-    error: {
-      code: 'VALIDATION_ERROR',
-      message: 'Dados de entrada inválidos.',
+  return new BadRequestException(
+    businessError('VALIDATION_ERROR', {
       details: details.map((d) => ({
         field: d.field,
         reason: d.reason,
       })),
-    },
-  };
-  return new BadRequestException(body);
+    }),
+  );
 }

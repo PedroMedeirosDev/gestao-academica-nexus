@@ -12,6 +12,7 @@ Estende `docs/decisions.md` (stepper na criação do aluno) e `docs/student-flow
 - **i18n:** toda string visível ao usuário via chaves (`docs/politica-de-idiomas.md`).
 - **Auto-save** e recuperação de rascunho conforme §16 do monólito.
 - **Ações destrutivas:** modal com resumo de impacto (§16).
+- **Userbar (contexto global da sessão):** foto do utilizador autenticado; **seletor do ano letivo principal** que define a base operacional (matrículas e fluxos só para o ano selecionado — não misturar outro ano na mesma sessão). **Saudação no layout compacto:** texto **«Bem-vindo, {primeiro nome} {último nome}»**, usando apenas o **primeiro** e o **último** token do nome completo cadastrado (sem nomes intermédios / “apelidos” entre eles). No layout expandido, pode exibir-se o **nome completo** como cadastrado.
 
 ---
 

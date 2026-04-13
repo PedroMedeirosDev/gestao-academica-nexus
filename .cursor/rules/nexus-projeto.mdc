@@ -1,0 +1,24 @@
+---
+description: Contexto e padrões do repositório Gestão Acadêmica Nexus
+alwaysApply: true
+---
+
+# Gestão Acadêmica Nexus (este repositório)
+
+## Fonte da verdade
+
+- Domínio e fluxos: `docs/domain.md`, `docs/student-flow.spec.md` e specs em `docs/specs/` (ver `docs/specs/README.md`).
+- Stack e decisões: `docs/especificacao-stack.md`, `docs/decisions.md`.
+- Idioma (docs + produto): `docs/politica-de-idiomas.md` — specs canônicos em PT onde indicado; UI com i18n **pt-BR** (padrão) + **en** quando houver implementação.
+
+## Implementação (quando existir código neste monorepo)
+
+- **Organização por domínio** em `apps/api` e `apps/web`: ver regra dedicada `organizacao-por-dominio.mdc` (pastas por feature; dentro do Nest usar `*.module.ts` / `*.controller.ts` / `*.service.ts` por pasta).
+- **TypeScript** em API e UI; evitar `any` em código novo; não logar dados sensíveis (CPF, senhas, tokens) no console nem em logs de app.
+- **Backend:** NestJS; **persistência:** PostgreSQL + Prisma; **frontend:** Next.js (App Router) + Tailwind; layout responsivo (mín. ~320px) conforme stack.
+- **i18n na UI:** strings visíveis ao usuário via chaves/catálogo (`pt-BR` + `en`), não texto solto no JSX para copy de produção.
+- **Ações destrutivas:** exclusões ou mudanças irreversíveis na UI exigem confirmação explícita (modal, confirmação em dois passos ou equivalente), não só um clique único.
+- **Erros e rede:** tratar falhas nas fronteiras (cliente HTTP, handlers de rota/server action) e refletir na UI (toast, estado de erro, mensagens traduzíveis); códigos estáveis para erros de negócio quando aplicável.
+- **Acessibilidade:** controles interativos com rótulo associado ou `aria-*` adequado; navegação por teclado com foco visível.
+
+Em caso de conflito entre chat e repositório, prevalece o que está commitado nos docs acima até ser atualizado por commit.

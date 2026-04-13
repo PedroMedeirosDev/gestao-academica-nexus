@@ -47,7 +47,7 @@ Resposta única de falha (campos podem ser estendidos com `traceId` depois):
 }
 ```
 
-- **`code`:** string estável **UPPER_SNAKE_CASE**, usada pela UI para i18n (`errors.ENROLLMENT_DUPLICATE`).
+- **`code`:** string estável **UPPER_SNAKE_CASE**, usada pela UI para i18n (convenção: chave `errors.<code>`, ex.: `errors.ENROLLMENT_DUPLICATE`; catálogo de mensagens pt-BR mínimas na API: `apps/api/src/common/errors/business-error.ts`).
 - **`message`:** human-readable mínimo (não substitui catálogo de tradução na UI final).
 - **`details`:** opcional; lista de violações de validação por campo.
 
@@ -121,7 +121,8 @@ Além dos genéricos acima, reservar (implementação pode acrescentar):
 
 - `ENROLLMENT_DUPLICATE`, `ENROLLMENT_INVALID_TRANSITION`, `ENROLLMENT_CURRICULUM_EMPTY`
 - `STUDENT_DRAFT_CONFLICT`, `GUARDIAN_LINK_REQUIRED`
-- `CATALOG_DEPENDENCY`, `CATALOG_DUPLICATE`
+- `CATALOG_DEPENDENCY`, `CATALOG_DUPLICATE` (na implementação atual há variantes mais específicas, ex.: `CATALOG_DUPLICATE_GRADE`, `CATALOG_DEPENDENCY_GRADE_DELETE`, `GRADE_NOT_FOUND` — ver `business-error.ts`)
+- `IDEMPOTENCY_KEY_CONFLICT` (§6: mesma chave reenviada com corpo diferente)
 - `FINANCE_*` (ver `finance.spec.md` §9)
 
 ---

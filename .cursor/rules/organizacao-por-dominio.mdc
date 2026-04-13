@@ -1,0 +1,26 @@
+---
+description: Pastas por domínio/feature (Nest + Next) — padrão do portfólio
+alwaysApply: true
+---
+
+# Organização por domínio (padrão)
+
+## Objetivo
+
+Código **agrupado por domínio ou feature de negócio** (ex.: `academic-years`, `students`, `enrollments`, `catalog`), **não** por camada global (`controllers/`, `services/` na raiz do app).
+
+## Backend (Nest — `apps/api/src`)
+
+- Cada domínio = **uma pasta** com o nome do recurso (kebab-case ou singular estável, alinhado ao vocabulário dos specs).
+- **Dentro** da pasta: `*.module.ts`, `*.controller.ts`, `*.service.ts`, `dto/` (ou ficheiros DTO), e eventualmente `*.guard.ts` / estratégias só desse domínio.
+- Módulos **transversais** (`prisma/`, `health/`, `auth/`, `common/`) ficam em pastas próprias na raiz de `src/`.
+
+## Frontend (Next — `apps/web`)
+
+- Rotas e UI por **área de produto** (ex.: agrupar sob `academico/`, `catalogo/`, `matricula/`), alinhado a `docs/specs/platform/ui-secretaria.spec.md` e ao que existir em `docs/specs/`.
+- Partilhado: `shared/` ou `components/` genéricos; **não** misturar regras de um domínio dentro de pastas de outro.
+
+## Ao criar código novo
+
+- Preferir **nova pasta de domínio** + módulo Nest (ou segmento de rota Next) em vez de inflar um ficheiro gigante de outro domínio.
+- Nomes de pastas **coerentes** com `docs/domain.md` e `docs/specs/` (inglês ou PT conforme já convencionado no repo).

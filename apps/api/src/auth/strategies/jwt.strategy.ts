@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserRole } from '@prisma/client';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { businessError } from '../../common/errors/business-error';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export type JwtPayload = {
@@ -29,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       where: { id: payload.sub },
     });
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(businessError('UNAUTHORIZED'));
     }
     return {
       userId: user.id,

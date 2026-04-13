@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import {
 import { CreateGradeDto } from './dto/create-grade.dto';
 import { ListGradesQueryDto } from './dto/list-grades-query.dto';
 import { MaterializeFromTemplateDto } from './dto/materialize-from-template.dto';
+import { UpdateGradeDto } from './dto/update-grade.dto';
 import { GradesService } from './grades.service';
 
 @ApiTags('Catálogo — séries')
@@ -30,7 +32,8 @@ export class GradesController {
   @Get()
   @ApiOperation({
     summary: 'Listar séries',
-    description: 'Filtros opcionais: academicYearId, educationLevelId.',
+    description:
+      'Filtros opcionais: `academicYearId`, `educationLevelId`. Resposta paginada: `data` + `meta` (`limit` padrão 20, máx. 50; `offset`).',
   })
   @ApiResponse({ status: 401, description: 'Não autenticado' })
   list(@Query() query: ListGradesQueryDto) {
@@ -69,6 +72,23 @@ export class GradesController {
   @ApiResponse({ status: 404, description: 'Não encontrada' })
   getById(@Param('id', ParseUUIDPipe) id: string) {
     return this.grades.getById(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Atualizar série',
+    description:
+      'PATCH parcial: `label`, `sortOrder`, `academicYearId`, `educationLevelId`. Mudar ano ou nível bloqueado com matrícula Reserva/Ativa (`catalog.spec.md` §3).',
+  })
+  @ApiResponse({ status: 200, description: 'Atualizada' })
+  @ApiResponse({ status: 400, description: 'Validação' })
+  @ApiResponse({ status: 404, description: 'Não encontrada' })
+  @ApiResponse({ status: 409, description: 'Duplicidade ou bloqueio por matrícula' })
+  patch(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateGradeDto,
+  ) {
+    return this.grades.patchGrade(id, dto);
   }
 
   @Delete(':id')

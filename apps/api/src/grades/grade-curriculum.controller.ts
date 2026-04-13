@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -16,6 +17,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { AddCurriculumLineDto } from './dto/add-curriculum-line.dto';
 import { PatchCurriculumSortDto } from './dto/patch-curriculum-sort.dto';
 import { GradesService } from './grades.service';
@@ -28,8 +30,11 @@ export class GradeCurriculumController {
 
   @Get()
   @ApiOperation({ summary: 'Listar disciplinas do currículo da série' })
-  list(@Param('gradeId', ParseUUIDPipe) gradeId: string) {
-    return this.grades.listCurriculum(gradeId);
+  list(
+    @Param('gradeId', ParseUUIDPipe) gradeId: string,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.grades.listCurriculum(gradeId, query);
   }
 
   @Post()

@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+import { businessError } from '../common/errors/business-error';
 import { normalizeCatalogLabel } from './normalize-catalog-label';
 
 export type FixedSeriesRow = { label: string; sortOrder: number };
@@ -26,23 +27,19 @@ export function validateNoDuplicateLabelsAndOrders(rows: FixedSeriesRow[]): void
   for (const row of rows) {
     const nl = normalizeCatalogLabel(row.label);
     if (seenLabels.has(nl)) {
-      throw new BadRequestException({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Rótulos duplicados no roteiro de séries fixas.',
+      throw new BadRequestException(
+        businessError('VALIDATION_FIXED_SERIES_DUPLICATE_LABEL', {
           details: [{ field: 'fixedSeriesTemplate', reason: 'DUPLICATE_LABEL' }],
-        },
-      });
+        }),
+      );
     }
     seenLabels.add(nl);
     if (seenOrders.has(row.sortOrder)) {
-      throw new BadRequestException({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Ordem duplicada no roteiro de séries fixas.',
+      throw new BadRequestException(
+        businessError('VALIDATION_FIXED_SERIES_DUPLICATE_ORDER', {
           details: [{ field: 'fixedSeriesTemplate', reason: 'DUPLICATE_ORDER' }],
-        },
-      });
+        }),
+      );
     }
     seenOrders.add(row.sortOrder);
   }

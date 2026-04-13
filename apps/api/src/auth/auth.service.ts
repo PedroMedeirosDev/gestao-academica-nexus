@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { businessError } from '../common/errors/business-error';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import type { JwtPayload } from './strategies/jwt.strategy';
@@ -18,12 +19,12 @@ export class AuthService {
       where: { email: dto.email.trim().toLowerCase() },
     });
     if (!user) {
-      throw new UnauthorizedException('Credenciais inválidas');
+      throw new UnauthorizedException(businessError('INVALID_CREDENTIALS'));
     }
     const hash = user.passwordHash.trim();
     const ok = await bcrypt.compare(dto.password, hash);
     if (!ok) {
-      throw new UnauthorizedException('Credenciais inválidas');
+      throw new UnauthorizedException(businessError('INVALID_CREDENTIALS'));
     }
     const payload: JwtPayload = {
       sub: user.id,

@@ -41,11 +41,13 @@ Para seeds e catálogo inicial, o produto considera **apenas** estas ofertas da 
 
 ### Níveis de ensino sugeridos no seed (rótulos)
 
-- `Ensino Fundamental — Anos iniciais (integral SEE/MG 2026)`
-- `Ensino Fundamental — Anos finais (integral SEE/MG 2026)`
-- `Ensino Médio — Integral propedêutico (SEE/MG 2026)`
+Nos **dados do sistema** (UI e registos importados), evitar siglas regionais no nome exibido; basta “referência 2026” ou equivalente. Exemplos alinhados ao `prisma/seed.js`:
 
-(Códigos estáveis `codigo` em `catalog.spec.md` podem ser `EFAI_EFTI_2026`, `EFAF_EFTI_2026`, `EM_EMTI_PROP_2026`, ajustando se já existir convenção no Prisma.)
+- `Ensino Fundamental — Anos iniciais (integral, referência 2026)`
+- `Ensino Fundamental — Anos finais (integral, referência 2026)`
+- `Ensino Médio — Integral propedêutico (referência 2026)`
+
+(Códigos estáveis `code`: `EFAI_EFTI_2026`, `EFAF_EFTI_2026`, `EM_EMTI_PROP_2026`.)
 
 ---
 

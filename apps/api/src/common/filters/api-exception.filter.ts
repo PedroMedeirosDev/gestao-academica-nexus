@@ -7,9 +7,13 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import {
+  API_ERROR_MESSAGES_PT_BR,
+  type ApiErrorCode,
+} from '../errors/business-error';
 import type { ApiErrorEnvelope } from '../types/api-error.types';
 
-function defaultCodeForStatus(status: number): string {
+function defaultCodeForStatus(status: number): ApiErrorCode | string {
   switch (status) {
     case HttpStatus.BAD_REQUEST:
       return 'VALIDATION_ERROR';
@@ -24,6 +28,13 @@ function defaultCodeForStatus(status: number): string {
     default:
       return 'HTTP_ERROR';
   }
+}
+
+function messageForDefaultCode(code: string): string {
+  if (code in API_ERROR_MESSAGES_PT_BR) {
+    return API_ERROR_MESSAGES_PT_BR[code as ApiErrorCode];
+  }
+  return 'Erro na requisição.';
 }
 
 function isEnvelope(body: unknown): body is ApiErrorEnvelope {
@@ -56,10 +67,11 @@ export class ApiExceptionFilter implements ExceptionFilter {
       if (isEnvelope(body)) {
         return res.status(status).json(body);
       }
+      const code = defaultCodeForStatus(status);
       return res.status(status).json({
         error: {
-          code: defaultCodeForStatus(status),
-          message: messageFromUnknown(body),
+          code,
+          message: messageFromUnknown(body) || messageForDefaultCode(code),
         },
       } satisfies ApiErrorEnvelope);
     }
@@ -70,7 +82,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       error: {
         code: 'INTERNAL_ERROR',
-        message: 'Erro interno.',
+        message: messageForDefaultCode('INTERNAL_ERROR'),
       },
     } satisfies ApiErrorEnvelope);
   }

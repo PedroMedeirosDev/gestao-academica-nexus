@@ -11,10 +11,11 @@
 | Bloco | Nome resumido | Situação |
 |-------|----------------|----------|
 | **0** | Fundação (repo, DB, API mínima, auth, `User` + `UserRole`) | **Concluído** |
-| **1** | Plataforma HTTP (erro, listas, idempotência) | **Em andamento** (envelope + validação + Swagger feitos) |
-| **2**–**8** | Catálogo → … → RAG | Pendente |
+| **1** | Plataforma HTTP (erro, listas, idempotência) | **Concluído** (paginação, idempotência base, catálogo de erros) |
+| **2** | Catálogo acadêmico (API + seed) | **Concluído** |
+| **3**–**8** | Alunos → … → RAG | Pendente |
 
-👉 **Próximo passo sugerido (ainda Bloco 1):** paginação `data`/`meta` nas listas quando existirem; depois `Idempotency-Key` nos POST críticos.
+👉 **Próximo passo sugerido:** **Bloco 3** — API alunos e responsáveis (ou **Bloco 4** matrícula, conforme prioridade).
 
 ---
 
@@ -34,23 +35,23 @@
 
 ```
 ================================================================================
- BLOCO 1 — PLATAFORMA E CONTRATO HTTP  ← próximo
+ BLOCO 1 — PLATAFORMA E CONTRATO HTTP  (concluído)
 ================================================================================
 ```
 
 | Status | Item | Spec |
 |--------|------|------|
 | [x] | Envelope de erro (`error.code`, `message`, `details`); filtro global + validação (400) + demais HTTP do Nest | `docs/specs/platform/api.spec.md` §3 |
-| [ ] | Listas grandes: `data` + `meta` (paginação) | `api.spec.md` §5 |
-| [ ] | `Idempotency-Key` em POST críticos (quando existirem matrícula/financeiro) | `api.spec.md` |
+| [x] | Listas grandes: `data` + `meta` (paginação) | `api.spec.md` §5 |
+| [x] | `Idempotency-Key`: modelo + serviço + `POST /academic-years` (exemplo); matrícula/financeiro quando existirem | `api.spec.md` §6 |
 | [x] | OpenAPI (Swagger UI em `/api/v1/swagger` + Bearer JWT) | `docs/specs/README.md` |
-| [ ] | Revisar códigos de erro ↔ UI / i18n | `api.spec.md` + `student-flow` §16 |
+| [x] | Códigos de erro ↔ UI / i18n: catálogo `business-error.ts` + `errors.<code>` no `api.spec.md` §3 | `api.spec.md` + `student-flow` §16 |
 
 ---
 
 ```
 ================================================================================
- BLOCO 2 — CATÁLOGO ACADÊMICO (API)
+ BLOCO 2 — CATÁLOGO ACADÊMICO (API) — concluído
 ================================================================================
 ```
 
@@ -58,9 +59,9 @@
 |--------|------|------|
 | [x] | **API:** `GET`/`POST` níveis de ensino (`/education-levels`) e disciplinas (`/disciplines`) — ver Swagger | `docs/specs/catalogo/catalog.spec.md` §2 e §4 |
 | [x] | **API:** séries `GET|POST|DELETE /grades`, currículo `.../grades/:id/curriculum`, turmas `.../grades/:id/classes` + bloqueios principais do spec | idem §3, §5, §6 |
-| [ ] | Série (Grade) + currículo + ordenação | idem |
-| [ ] | Turma + bloqueios de exclusão | idem |
-| [ ] | Seeds / referência MG (se aplicável) | `docs/specs/catalogo/referencia-matriz-seemg-2026.md` |
+| [x] | Série (Grade) + currículo + ordenação (PATCH série, PATCH ano, exclusões com bloqueios, currículo `sortOrder` ≥ 1) | idem |
+| [x] | Turma + bloqueios de exclusão (GET/PATCH turma, exclusão com contagem por status) | idem §6 |
+| [x] | Seeds / referência matriz 2026 (`npm run db:seed`, `prisma/seed.js`) | `docs/specs/catalogo/referencia-matriz-seemg-2026.md` |
 
 ---
 

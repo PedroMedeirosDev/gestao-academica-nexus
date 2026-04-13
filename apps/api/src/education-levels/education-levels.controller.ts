@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -8,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -15,6 +17,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateEducationLevelDto } from './dto/create-education-level.dto';
 import { UpdateEducationLevelDto } from './dto/update-education-level.dto';
 import { EducationLevelsService } from './education-levels.service';
@@ -28,8 +31,8 @@ export class EducationLevelsController {
   @Get()
   @ApiOperation({ summary: 'Listar níveis de ensino' })
   @ApiResponse({ status: 401, description: 'Não autenticado' })
-  list() {
-    return this.educationLevels.list();
+  list(@Query() query: PaginationQueryDto) {
+    return this.educationLevels.list(query);
   }
 
   @Get(':id')
@@ -64,5 +67,19 @@ export class EducationLevelsController {
     @Body() dto: UpdateEducationLevelDto,
   ) {
     return this.educationLevels.update(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Excluir nível de ensino',
+    description:
+      'Bloqueado se existir série em qualquer ano usando este nível (`catalog.spec.md` §2).',
+  })
+  @ApiResponse({ status: 200, description: 'Removido' })
+  @ApiResponse({ status: 404, description: 'Não encontrado' })
+  @ApiResponse({ status: 409, description: 'Existem séries vinculadas' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.educationLevels.deleteLevel(id);
   }
 }

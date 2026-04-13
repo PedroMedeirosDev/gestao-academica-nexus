@@ -40,6 +40,21 @@ model User {
   updatedAt    DateTime @updatedAt
 }
 
+/// Registro de respostas para replay quando o cliente reenvia o mesmo `Idempotency-Key` (ver `api.spec.md` §6).
+/// Janela de validade aplicada em código (ex.: 24 h), não no schema.
+model IdempotencyRecord {
+  id           String   @id @default(cuid())
+  userId       String
+  scope        String
+  key          String
+  bodyHash     String
+  statusCode   Int
+  responseBody Json
+  createdAt    DateTime @default(now())
+
+  @@index([userId, scope, key, createdAt(sort: Desc)])
+}
+
 // --- Configuração da instituição (singleton lógico: uma linha) ---
 
 model InstitutionSettings {

@@ -5,6 +5,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EnrollmentStatus, GradeCreationMode, Prisma } from '@prisma/client';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { businessError } from '../common/errors/business-error';
+import { resolvePagination } from '../common/pagination/resolve-pagination';
 import { PrismaService } from '../prisma/prisma.service';
 import { AddCurriculumLineDto } from './dto/add-curriculum-line.dto';
 import { CreateGradeDto } from './dto/create-grade.dto';
@@ -12,6 +15,8 @@ import { CreateSchoolClassDto } from './dto/create-school-class.dto';
 import { ListGradesQueryDto } from './dto/list-grades-query.dto';
 import { MaterializeFromTemplateDto } from './dto/materialize-from-template.dto';
 import { PatchCurriculumSortDto } from './dto/patch-curriculum-sort.dto';
+import { UpdateGradeDto } from './dto/update-grade.dto';
+import { UpdateSchoolClassDto } from './dto/update-school-class.dto';
 import { parseFixedSeriesTemplate } from './fixed-series-template';
 import { normalizeCatalogLabel } from './normalize-catalog-label';
 
@@ -20,26 +25,34 @@ export class GradesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(query: ListGradesQueryDto) {
-    return this.prisma.grade.findMany({
-      where: {
-        ...(query.academicYearId
-          ? { academicYearId: query.academicYearId }
-          : {}),
-        ...(query.educationLevelId
-          ? { educationLevelId: query.educationLevelId }
-          : {}),
-      },
-      orderBy: [
-        { academicYear: { year: 'desc' } },
-        { educationLevel: { sortOrder: 'asc' } },
-        { sortOrder: 'asc' },
-        { label: 'asc' },
-      ],
-      include: {
-        academicYear: { select: { id: true, year: true } },
-        educationLevel: { select: { id: true, code: true, name: true } },
-      },
-    });
+    const { limit, offset } = resolvePagination(query.limit, query.offset);
+    const where = {
+      ...(query.academicYearId
+        ? { academicYearId: query.academicYearId }
+        : {}),
+      ...(query.educationLevelId
+        ? { educationLevelId: query.educationLevelId }
+        : {}),
+    };
+    const [total, data] = await Promise.all([
+      this.prisma.grade.count({ where }),
+      this.prisma.grade.findMany({
+        where,
+        orderBy: [
+          { academicYear: { year: 'desc' } },
+          { educationLevel: { sortOrder: 'asc' } },
+          { sortOrder: 'asc' },
+          { label: 'asc' },
+        ],
+        include: {
+          academicYear: { select: { id: true, year: true } },
+          educationLevel: { select: { id: true, code: true, name: true } },
+        },
+        skip: offset,
+        take: limit,
+      }),
+    ]);
+    return { data, meta: { total, limit, offset } };
   }
 
   async getById(id: string) {
@@ -51,7 +64,7 @@ export class GradesService {
       },
     });
     if (!grade) {
-      throw new NotFoundException('Série não encontrada.');
+      throw new NotFoundException(businessError('GRADE_NOT_FOUND'));
     }
     return grade;
   }
@@ -67,58 +80,16 @@ export class GradesService {
       }),
     ]);
     if (!year) {
-      throw new NotFoundException('Ano letivo não encontrado.');
+      throw new NotFoundException(businessError('ACADEMIC_YEAR_NOT_FOUND'));
     }
     if (!level) {
-      throw new NotFoundException('Nível de ensino não encontrado.');
+      throw new NotFoundException(businessError('EDUCATION_LEVEL_NOT_FOUND'));
     }
 
-    if (level.gradeCreationMode === GradeCreationMode.FIXED_SERIES) {
-      const rows = parseFixedSeriesTemplate(level.fixedSeriesTemplate);
-      if (!rows?.length) {
-        throw new BadRequestException({
-          error: {
-            code: 'CATALOG_MISCONFIGURED_LEVEL',
-            message:
-              'Nível com séries fixas sem roteiro (`fixedSeriesTemplate`). Corrija o cadastro do nível.',
-            details: [
-              { field: 'educationLevelId', reason: 'MISSING_TEMPLATE' },
-            ],
-          },
-        });
-      }
-
-      if (dto.sortOrder === undefined || dto.sortOrder === null) {
-        throw new BadRequestException({
-          error: {
-            code: 'VALIDATION_ERROR',
-            message:
-              'Para níveis com séries fixas, envie `sortOrder` igual ao definido no roteiro do nível.',
-            details: [{ field: 'sortOrder', reason: 'REQUIRED_FOR_FIXED' }],
-          },
-        });
-      }
-
-      const norm = normalizeCatalogLabel(dto.label);
-      const allowed = rows.some(
-        (r) =>
-          normalizeCatalogLabel(r.label) === norm &&
-          Number(r.sortOrder) === dto.sortOrder,
-      );
-      if (!allowed) {
-        throw new BadRequestException({
-          error: {
-            code: 'CATALOG_FIXED_SERIES',
-            message:
-              'Combinação de rótulo e ordem não faz parte do roteiro fixo deste nível (ex.: matriz SEE principal).',
-            details: [
-              { field: 'label', reason: 'NOT_IN_TEMPLATE' },
-              { field: 'sortOrder', reason: 'NOT_IN_TEMPLATE' },
-            ],
-          },
-        });
-      }
-    }
+    this.assertFixedSeriesGradeAllowed(level, label, sortOrder, {
+      requireSortFromClientIfFixed: true,
+      clientSortOrder: dto.sortOrder,
+    });
 
     try {
       return await this.prisma.grade.create({
@@ -138,18 +109,144 @@ export class GradesService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2002'
       ) {
-        throw new ConflictException({
-          error: {
-            code: 'CATALOG_DUPLICATE',
-            message:
-              'Já existe uma série com este ano letivo, nível e rótulo (após normalização).',
+        throw new ConflictException(
+          businessError('CATALOG_DUPLICATE_GRADE', {
             details: [
               { field: 'label', reason: 'UNIQUE' },
               { field: 'academicYearId', reason: 'UNIQUE' },
               { field: 'educationLevelId', reason: 'UNIQUE' },
             ],
+          }),
+        );
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * `catalog.spec.md` §3 — editar rótulo/ordem; mudar ano ou nível só sem matrícula Reserva/Ativa.
+   */
+  async patchGrade(id: string, dto: UpdateGradeDto) {
+    const existing = await this.getById(id);
+    const hasPatch =
+      dto.label !== undefined ||
+      dto.sortOrder !== undefined ||
+      dto.academicYearId !== undefined ||
+      dto.educationLevelId !== undefined;
+    if (!hasPatch) {
+      throw new BadRequestException(
+        businessError('VALIDATION_PATCH_EMPTY', {
+          details: [{ field: 'body', reason: 'EMPTY' }],
+        }),
+      );
+    }
+
+    const movingYear =
+      dto.academicYearId !== undefined &&
+      dto.academicYearId !== existing.academicYearId;
+    const movingLevel =
+      dto.educationLevelId !== undefined &&
+      dto.educationLevelId !== existing.educationLevelId;
+    if (movingYear || movingLevel) {
+      const blocking = await this.prisma.enrollment.count({
+        where: {
+          gradeId: id,
+          status: {
+            in: [EnrollmentStatus.RESERVATION, EnrollmentStatus.ACTIVE],
           },
-        });
+        },
+      });
+      if (blocking > 0) {
+        throw new ConflictException(
+          businessError('GRADE_MOVE_BLOCKED_BY_ENROLLMENT', {
+            details: [
+              {
+                field: 'academicYearId',
+                reason: 'ENROLLMENT_RESERVATION_OR_ACTIVE',
+              },
+            ],
+          }),
+        );
+      }
+    }
+
+    const nextYearId = dto.academicYearId ?? existing.academicYearId;
+    const nextLevelId = dto.educationLevelId ?? existing.educationLevelId;
+    const nextLabel =
+      dto.label !== undefined
+        ? normalizeCatalogLabel(dto.label)
+        : normalizeCatalogLabel(existing.label);
+    const nextSortOrder =
+      dto.sortOrder !== undefined ? dto.sortOrder : existing.sortOrder;
+
+    if (
+      dto.academicYearId !== undefined &&
+      dto.academicYearId !== existing.academicYearId
+    ) {
+      const y = await this.prisma.academicYear.findUnique({
+        where: { id: nextYearId },
+      });
+      if (!y) {
+        throw new NotFoundException(businessError('ACADEMIC_YEAR_NOT_FOUND'));
+      }
+    }
+    if (
+      dto.educationLevelId !== undefined &&
+      dto.educationLevelId !== existing.educationLevelId
+    ) {
+      const lev = await this.prisma.educationLevel.findUnique({
+        where: { id: nextLevelId },
+      });
+      if (!lev) {
+        throw new NotFoundException(
+          businessError('EDUCATION_LEVEL_NOT_FOUND'),
+        );
+      }
+    }
+
+    const level = await this.prisma.educationLevel.findUnique({
+      where: { id: nextLevelId },
+    });
+    if (!level) {
+      throw new NotFoundException(businessError('EDUCATION_LEVEL_NOT_FOUND'));
+    }
+    this.assertFixedSeriesGradeAllowed(level, nextLabel, nextSortOrder, {
+      requireSortFromClientIfFixed: false,
+      clientSortOrder: dto.sortOrder ?? null,
+    });
+
+    try {
+      return await this.prisma.grade.update({
+        where: { id },
+        data: {
+          ...(dto.label !== undefined ? { label: nextLabel } : {}),
+          ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+          ...(dto.academicYearId !== undefined
+            ? { academicYearId: dto.academicYearId }
+            : {}),
+          ...(dto.educationLevelId !== undefined
+            ? { educationLevelId: dto.educationLevelId }
+            : {}),
+        },
+        include: {
+          academicYear: { select: { id: true, year: true } },
+          educationLevel: { select: { id: true, code: true, name: true } },
+        },
+      });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          businessError('CATALOG_DUPLICATE_GRADE', {
+            details: [
+              { field: 'label', reason: 'UNIQUE' },
+              { field: 'academicYearId', reason: 'UNIQUE' },
+              { field: 'educationLevelId', reason: 'UNIQUE' },
+            ],
+          }),
+        );
       }
       throw e;
     }
@@ -165,11 +262,8 @@ export class GradesService {
     ]);
 
     if (enrollments + classes + curriculum > 0) {
-      throw new ConflictException({
-        error: {
-          code: 'CATALOG_DEPENDENCY',
-          message:
-            'Não é possível excluir a série: existem matrículas, turmas ou linhas de currículo vinculadas.',
+      throw new ConflictException(
+        businessError('CATALOG_DEPENDENCY_GRADE_DELETE', {
           details: [
             ...(enrollments > 0
               ? [{ field: 'enrollments', reason: 'EXISTS' as const }]
@@ -181,21 +275,29 @@ export class GradesService {
               ? [{ field: 'curriculum', reason: 'EXISTS' as const }]
               : []),
           ],
-        },
-      });
+        }),
+      );
     }
 
     await this.prisma.grade.delete({ where: { id } });
     return { deleted: true, id };
   }
 
-  async listCurriculum(gradeId: string) {
+  async listCurriculum(gradeId: string, query: PaginationQueryDto) {
     await this.getById(gradeId);
-    return this.prisma.gradeCurriculum.findMany({
-      where: { gradeId },
-      orderBy: { sortOrder: 'asc' },
-      include: { discipline: true },
-    });
+    const { limit, offset } = resolvePagination(query.limit, query.offset);
+    const where = { gradeId };
+    const [total, data] = await Promise.all([
+      this.prisma.gradeCurriculum.count({ where }),
+      this.prisma.gradeCurriculum.findMany({
+        where,
+        orderBy: { sortOrder: 'asc' },
+        include: { discipline: true },
+        skip: offset,
+        take: limit,
+      }),
+    ]);
+    return { data, meta: { total, limit, offset } };
   }
 
   async addCurriculumLine(gradeId: string, dto: AddCurriculumLineDto) {
@@ -205,7 +307,7 @@ export class GradesService {
       where: { id: dto.disciplineId },
     });
     if (!discipline) {
-      throw new NotFoundException('Disciplina não encontrada.');
+      throw new NotFoundException(businessError('DISCIPLINE_NOT_FOUND'));
     }
 
     try {
@@ -222,17 +324,14 @@ export class GradesService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2002'
       ) {
-        throw new ConflictException({
-          error: {
-            code: 'CATALOG_DUPLICATE',
-            message:
-              'Disciplina já está no currículo desta série ou a ordem já está em uso.',
+        throw new ConflictException(
+          businessError('CATALOG_DUPLICATE_CURRICULUM_LINE', {
             details: [
               { field: 'disciplineId', reason: 'UNIQUE' },
               { field: 'sortOrder', reason: 'UNIQUE' },
             ],
-          },
-        });
+          }),
+        );
       }
       throw e;
     }
@@ -249,7 +348,9 @@ export class GradesService {
       where: { id: curriculumId, gradeId },
     });
     if (!line) {
-      throw new NotFoundException('Linha de currículo não encontrada nesta série.');
+      throw new NotFoundException(
+        businessError('GRADE_CURRICULUM_LINE_NOT_FOUND'),
+      );
     }
 
     try {
@@ -263,13 +364,11 @@ export class GradesService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2002'
       ) {
-        throw new ConflictException({
-          error: {
-            code: 'CATALOG_DUPLICATE',
-            message: 'Esta ordem já está em uso no currículo da série.',
+        throw new ConflictException(
+          businessError('CATALOG_DUPLICATE_CURRICULUM_SORT', {
             details: [{ field: 'sortOrder', reason: 'UNIQUE' }],
-          },
-        });
+          }),
+        );
       }
       throw e;
     }
@@ -285,31 +384,38 @@ export class GradesService {
       },
     });
     if (activeEnrollments > 0) {
-      throw new ConflictException({
-        error: {
-          code: 'CATALOG_DEPENDENCY',
-          message:
-            'Não é possível remover: existe matrícula ativa nesta série (currículo materializado).',
+      throw new ConflictException(
+        businessError('CATALOG_DEPENDENCY_CURRICULUM_REMOVE', {
           details: [{ field: 'enrollment', reason: 'ACTIVE_EXISTS' }],
-        },
-      });
+        }),
+      );
     }
 
     const result = await this.prisma.gradeCurriculum.deleteMany({
       where: { id: curriculumId, gradeId },
     });
     if (result.count === 0) {
-      throw new NotFoundException('Linha de currículo não encontrada nesta série.');
+      throw new NotFoundException(
+        businessError('GRADE_CURRICULUM_LINE_NOT_FOUND'),
+      );
     }
     return { deleted: true, id: curriculumId };
   }
 
-  async listSchoolClasses(gradeId: string) {
+  async listSchoolClasses(gradeId: string, query: PaginationQueryDto) {
     await this.getById(gradeId);
-    return this.prisma.schoolClass.findMany({
-      where: { gradeId },
-      orderBy: { name: 'asc' },
-    });
+    const { limit, offset } = resolvePagination(query.limit, query.offset);
+    const where = { gradeId };
+    const [total, data] = await Promise.all([
+      this.prisma.schoolClass.count({ where }),
+      this.prisma.schoolClass.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        skip: offset,
+        take: limit,
+      }),
+    ]);
+    return { data, meta: { total, limit, offset } };
   }
 
   async createSchoolClass(gradeId: string, dto: CreateSchoolClassDto) {
@@ -325,13 +431,60 @@ export class GradesService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2002'
       ) {
-        throw new ConflictException({
-          error: {
-            code: 'CATALOG_DUPLICATE',
-            message: 'Já existe uma turma com este nome nesta série.',
+        throw new ConflictException(
+          businessError('CATALOG_DUPLICATE_SCHOOL_CLASS', {
             details: [{ field: 'name', reason: 'UNIQUE' }],
-          },
-        });
+          }),
+        );
+      }
+      throw e;
+    }
+  }
+
+  async getSchoolClassById(gradeId: string, classId: string) {
+    await this.getById(gradeId);
+    const schoolClass = await this.prisma.schoolClass.findFirst({
+      where: { id: classId, gradeId },
+    });
+    if (!schoolClass) {
+      throw new NotFoundException(businessError('SCHOOL_CLASS_NOT_FOUND'));
+    }
+    return schoolClass;
+  }
+
+  async patchSchoolClass(
+    gradeId: string,
+    classId: string,
+    dto: UpdateSchoolClassDto,
+  ) {
+    await this.getById(gradeId);
+    const schoolClass = await this.prisma.schoolClass.findFirst({
+      where: { id: classId, gradeId },
+    });
+    if (!schoolClass) {
+      throw new NotFoundException(businessError('SCHOOL_CLASS_NOT_FOUND'));
+    }
+
+    const name = normalizeCatalogLabel(dto.name);
+    if (name === schoolClass.name) {
+      return schoolClass;
+    }
+
+    try {
+      return await this.prisma.schoolClass.update({
+        where: { id: classId },
+        data: { name },
+      });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          businessError('CATALOG_DUPLICATE_SCHOOL_CLASS', {
+            details: [{ field: 'name', reason: 'UNIQUE' }],
+          }),
+        );
       }
       throw e;
     }
@@ -344,21 +497,26 @@ export class GradesService {
       where: { id: classId, gradeId },
     });
     if (!schoolClass) {
-      throw new NotFoundException('Turma não encontrada nesta série.');
+      throw new NotFoundException(businessError('SCHOOL_CLASS_NOT_FOUND'));
     }
 
-    const enrollments = await this.prisma.enrollment.count({
+    /** `catalog.spec.md` §6.3 — MVP: bloquear se existir qualquer matrícula (incl. cancelada). */
+    const byStatus = await this.prisma.enrollment.groupBy({
+      by: ['status'],
       where: { schoolClassId: classId },
+      _count: { _all: true },
     });
-    if (enrollments > 0) {
-      throw new ConflictException({
-        error: {
-          code: 'CATALOG_DEPENDENCY',
-          message:
-            'Não é possível excluir a turma: existe matrícula vinculada (inclui canceladas — política MVP).',
-          details: [{ field: 'enrollment', reason: 'EXISTS' }],
-        },
-      });
+    const total = byStatus.reduce((s, g) => s + g._count._all, 0);
+    if (total > 0) {
+      const details = byStatus.map((g) => ({
+        field: `enrollment.${g.status}`,
+        reason: String(g._count._all),
+      }));
+      throw new ConflictException(
+        businessError('CATALOG_DEPENDENCY_SCHOOL_CLASS_DELETE', {
+          details,
+        }),
+      );
     }
 
     await this.prisma.schoolClass.delete({ where: { id: classId } });
@@ -374,7 +532,7 @@ export class GradesService {
       where: { id: dto.academicYearId },
     });
     if (!year) {
-      throw new NotFoundException('Ano letivo não encontrado.');
+      throw new NotFoundException(businessError('ACADEMIC_YEAR_NOT_FOUND'));
     }
 
     const ids = dto.educationLevelIds?.filter(Boolean);
@@ -385,14 +543,11 @@ export class GradesService {
 
     const levels = await this.prisma.educationLevel.findMany({ where });
     if (ids?.length && levels.length !== ids.length) {
-      throw new BadRequestException({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message:
-            'Algum id em `educationLevelIds` não existe ou não está em `FIXED_SERIES`.',
+      throw new BadRequestException(
+        businessError('VALIDATION_MATERIALIZE_EDUCATION_LEVEL_IDS', {
           details: [{ field: 'educationLevelIds', reason: 'INVALID' }],
-        },
-      });
+        }),
+      );
     }
 
     const results: {
@@ -448,5 +603,56 @@ export class GradesService {
     }
 
     return { academicYearId: dto.academicYearId, results };
+  }
+
+  private assertFixedSeriesGradeAllowed(
+    level: {
+      gradeCreationMode: GradeCreationMode;
+      fixedSeriesTemplate: Prisma.JsonValue | null;
+    },
+    normalizedLabel: string,
+    sortOrder: number,
+    options: {
+      requireSortFromClientIfFixed: boolean;
+      clientSortOrder?: number | null;
+    },
+  ): void {
+    if (level.gradeCreationMode !== GradeCreationMode.FIXED_SERIES) {
+      return;
+    }
+    const rows = parseFixedSeriesTemplate(level.fixedSeriesTemplate);
+    if (!rows?.length) {
+      throw new BadRequestException(
+        businessError('CATALOG_MISCONFIGURED_LEVEL', {
+          details: [{ field: 'educationLevelId', reason: 'MISSING_TEMPLATE' }],
+        }),
+      );
+    }
+    if (
+      options.requireSortFromClientIfFixed &&
+      (options.clientSortOrder === undefined ||
+        options.clientSortOrder === null)
+    ) {
+      throw new BadRequestException(
+        businessError('VALIDATION_GRADE_SORT_REQUIRED_FIXED', {
+          details: [{ field: 'sortOrder', reason: 'REQUIRED_FOR_FIXED' }],
+        }),
+      );
+    }
+    const allowed = rows.some(
+      (r) =>
+        normalizeCatalogLabel(r.label) === normalizedLabel &&
+        Number(r.sortOrder) === sortOrder,
+    );
+    if (!allowed) {
+      throw new BadRequestException(
+        businessError('CATALOG_FIXED_SERIES', {
+          details: [
+            { field: 'label', reason: 'NOT_IN_TEMPLATE' },
+            { field: 'sortOrder', reason: 'NOT_IN_TEMPLATE' },
+          ],
+        }),
+      );
+    }
   }
 }

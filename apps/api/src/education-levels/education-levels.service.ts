@@ -5,6 +5,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { GradeCreationMode, Prisma } from '@prisma/client';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { businessError } from '../common/errors/business-error';
+import { resolvePagination } from '../common/pagination/resolve-pagination';
 import {
   parseFixedSeriesTemplate,
   validateNoDuplicateLabelsAndOrders,
@@ -19,10 +22,19 @@ import { UpdateEducationLevelDto } from './dto/update-education-level.dto';
 export class EducationLevelsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list() {
-    return this.prisma.educationLevel.findMany({
-      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
-    });
+  async list(query: PaginationQueryDto) {
+    const { limit, offset } = resolvePagination(query.limit, query.offset);
+    const where = {};
+    const [total, data] = await Promise.all([
+      this.prisma.educationLevel.count({ where }),
+      this.prisma.educationLevel.findMany({
+        where,
+        orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+        skip: offset,
+        take: limit,
+      }),
+    ]);
+    return { data, meta: { total, limit, offset } };
   }
 
   async getById(id: string) {
@@ -30,7 +42,7 @@ export class EducationLevelsService {
       where: { id },
     });
     if (!level) {
-      throw new NotFoundException('Nível de ensino não encontrado.');
+      throw new NotFoundException(businessError('EDUCATION_LEVEL_NOT_FOUND'));
     }
     return level;
   }
@@ -44,14 +56,11 @@ export class EducationLevelsService {
 
     if (gradeCreationMode === GradeCreationMode.FIXED_SERIES) {
       if (!dto.fixedSeriesTemplate?.length) {
-        throw new BadRequestException({
-          error: {
-            code: 'VALIDATION_ERROR',
-            message:
-              'Nível com séries fixas exige `fixedSeriesTemplate` com ao menos um item.',
+        throw new BadRequestException(
+          businessError('VALIDATION_EDUCATION_LEVEL_FIXED_TEMPLATE_REQUIRED', {
             details: [{ field: 'fixedSeriesTemplate', reason: 'REQUIRED' }],
-          },
-        });
+          }),
+        );
       }
       const rows: FixedSeriesRow[] = dto.fixedSeriesTemplate.map((r) => ({
         label: r.label,
@@ -78,13 +87,11 @@ export class EducationLevelsService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2002'
       ) {
-        throw new ConflictException({
-          error: {
-            code: 'CATALOG_DUPLICATE',
-            message: 'Já existe um nível de ensino com este código.',
+        throw new ConflictException(
+          businessError('CATALOG_DUPLICATE_EDUCATION_LEVEL_CODE', {
             details: [{ field: 'code', reason: 'UNIQUE' }],
-          },
-        });
+          }),
+        );
       }
       throw e;
     }
@@ -101,14 +108,11 @@ export class EducationLevelsService {
       dto.fixedSeriesTemplate !== undefined &&
       nextMode === GradeCreationMode.FREE
     ) {
-      throw new BadRequestException({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message:
-            'Não envie `fixedSeriesTemplate` enquanto o nível estiver (ou for ficar) em modo livre (`FREE`).',
+      throw new BadRequestException(
+        businessError('VALIDATION_EDUCATION_LEVEL_TEMPLATE_INVALID_FOR_FREE', {
           details: [{ field: 'fixedSeriesTemplate', reason: 'INVALID_FOR_FREE' }],
-        },
-      });
+        }),
+      );
     }
 
     const mergedTemplateJson =
@@ -119,14 +123,11 @@ export class EducationLevelsService {
     if (nextMode === GradeCreationMode.FIXED_SERIES) {
       const parsed = parseFixedSeriesTemplate(mergedTemplateJson ?? null);
       if (!parsed?.length) {
-        throw new BadRequestException({
-          error: {
-            code: 'VALIDATION_ERROR',
-            message:
-              'Nível FIXED_SERIES exige roteiro: envie `fixedSeriesTemplate` ou mantenha o já cadastrado.',
+        throw new BadRequestException(
+          businessError('VALIDATION_EDUCATION_LEVEL_FIXED_REQUIRES_TEMPLATE', {
             details: [{ field: 'fixedSeriesTemplate', reason: 'REQUIRED' }],
-          },
-        });
+          }),
+        );
       }
       validateNoDuplicateLabelsAndOrders(parsed);
       if (templateChanged || modeChanged) {
@@ -161,6 +162,27 @@ export class EducationLevelsService {
     });
   }
 
+  async deleteLevel(id: string) {
+    await this.getById(id);
+    const gradeCount = await this.prisma.grade.count({
+      where: { educationLevelId: id },
+    });
+    if (gradeCount > 0) {
+      throw new ConflictException(
+        businessError('EDUCATION_LEVEL_DELETE_HAS_GRADES', {
+          details: [
+            {
+              field: 'grades',
+              reason: 'EXISTS',
+            },
+          ],
+        }),
+      );
+    }
+    await this.prisma.educationLevel.delete({ where: { id } });
+    return { deleted: true, id };
+  }
+
   private async assertGradesCompatibleWithTemplate(
     educationLevelId: string,
     rows: FixedSeriesRow[],
@@ -176,19 +198,16 @@ export class EducationLevelsService {
           r.sortOrder === g.sortOrder,
       );
       if (!ok) {
-        throw new ConflictException({
-          error: {
-            code: 'CATALOG_DEPENDENCY',
-            message:
-              'Existem séries já cadastradas que não entram no novo roteiro. Ajuste ou remova essas séries antes de mudar o roteiro.',
+        throw new ConflictException(
+          businessError('CATALOG_DEPENDENCY_EDUCATION_LEVEL_TEMPLATE', {
             details: [
               {
                 field: 'fixedSeriesTemplate',
                 reason: 'CONFLICTS_WITH_GRADES',
               },
             ],
-          },
-        });
+          }),
+        );
       }
     }
   }
